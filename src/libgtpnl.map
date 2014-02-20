@@ -1,0 +1,13 @@
+LIBGTPNL_1.0 {
+global:
+  genl_socket_open;
+  genl_nlmsg_build_hdr;
+  genl_socket_talk;
+  genl_lookup_family;
+  gtp_dev_create;
+  gtp_add_tunnel;
+  gtp_del_tunnel;
+  gtp_list_tunnel;
+
+local: *;
+};
