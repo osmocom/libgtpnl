@@ -11,6 +11,7 @@
 #include <libmnl/libmnl.h>
 #include <linux/genetlink.h>
 
+#include <libgtpnl/gtp.h>
 #include <libgtpnl/gtpnl.h>
 
 #include <net/if.h>
@@ -29,42 +30,22 @@ static void gtp_build_payload(struct nlmsghdr *nlh, uint64_t tid,
 	mnl_attr_put_u64(nlh, GTPA_TID, tid);
 }
 
-int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, const char *ifname,
-		   const char *ms_addr, const char *sgsn_addr, uint64_t tid,
-		   int gtp_version)
+int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 {
-	uint32_t gtp_ifidx;
-	struct in_addr ms, sgsn;
 	struct nlmsghdr *nlh;
 	char buf[MNL_SOCKET_BUFFER_SIZE];
 	uint32_t seq = time(NULL);
 
-	gtp_ifidx = if_nametoindex(ifname);
-	if (gtp_ifidx == 0){
-		fprintf(stderr, "wrong GTP interface %s\n", ifname);
-		return -1;
-	}
-
-	if (inet_aton(ms_addr, &ms) < 0) {
-		perror("bad address for ms");
-		return -1;
-	}
-
-	if (inet_aton(sgsn_addr, &sgsn) < 0) {
-		perror("bad address for sgsn");
-		return -1;
-	}
-
-	if (gtp_version > GTP_V1) {
+	if (t->gtp_version > GTP_V1) {
 		fprintf(stderr, "wrong GTP version %u, use v0 or v1\n",
-			gtp_version);
+			t->gtp_version);
 		return -1;
 	}
 
 	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_EXCL | NLM_F_ACK, ++seq,
 				   GTP_CMD_TUNNEL_NEW);
-	gtp_build_payload(nlh, tid, gtp_ifidx, sgsn.s_addr,
-			  ms.s_addr, gtp_version);
+	gtp_build_payload(nlh, t->tid, t->ifidx, t->sgsn_addr.s_addr,
+			  t->ms_addr.s_addr, t->gtp_version);
 
 	if (genl_socket_talk(nl, nlh, seq, NULL, NULL) < 0)
 		perror("genl_socket_talk");
@@ -73,19 +54,15 @@ int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, const char *ifname,
 }
 EXPORT_SYMBOL(gtp_add_tunnel);
 
-int gtp_del_tunnel(int genl_id, struct mnl_socket *nl, const char *ifname,
-		   uint64_t tid, uint32_t gtp_version)
+int gtp_del_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 {
-	uint32_t gtp_ifidx;
 	char buf[MNL_SOCKET_BUFFER_SIZE];
 	struct nlmsghdr *nlh;
 	uint32_t seq = time(NULL);
 
-	gtp_ifidx = if_nametoindex(ifname);
-
 	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_ACK, ++seq,
 				   GTP_CMD_TUNNEL_DELETE);
-	gtp_build_payload(nlh, tid, gtp_ifidx, 0, 0, gtp_version);
+	gtp_build_payload(nlh, t->tid, t->ifidx, 0, 0, t->gtp_version);
 
 	if (genl_socket_talk(nl, nlh, seq, NULL, NULL) < 0)
 		perror("genl_socket_talk");

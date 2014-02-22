@@ -16,11 +16,10 @@ int genl_lookup_family(struct mnl_socket *nl, const char *family);
 
 int gtp_dev_create(const char *ifname);
 
-int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, const char *ifname,
-		   const char *ms_addr, const char *sgsn_addr, uint64_t tid,
-		   int gtp_version);
-int gtp_del_tunnel(int genl_id, struct mnl_socket *nl, const char *ifname,
-		   uint64_t tid, uint32_t gtp_version);
+struct gtp_tunnel;
+
+int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t);
+int gtp_del_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t);
 int gtp_list_tunnel(int genl_id, struct mnl_socket *nl);
 
 #endif

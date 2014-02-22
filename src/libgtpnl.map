@@ -9,5 +9,18 @@ global:
   gtp_del_tunnel;
   gtp_list_tunnel;
 
+  gtp_tunnel_alloc;
+  gtp_tunnel_free;
+  gtp_tunnel_set_ifidx;
+  gtp_tunnel_set_ms_ip4;
+  gtp_tunnel_set_sgsn_ip4;
+  gtp_tunnel_set_version;
+  gtp_tunnel_set_tid;
+  gtp_tunnel_get_ifidx;
+  gtp_tunnel_get_ms_ip4;
+  gtp_tunnel_get_sgsn_ip4;
+  gtp_tunnel_get_version;
+  gtp_tunnel_get_tid;
+
 local: *;
 };
