@@ -51,7 +51,7 @@ int gtp_dev_create(const char *ifname)
 
 	if (mnl_socket_bind(nl, 0, MNL_SOCKET_AUTOPID) < 0) {
 		perror("mnl_socket_bind");
-		return -1;
+		goto err;
 	}
 	portid = mnl_socket_get_portid(nl);
 
@@ -60,23 +60,25 @@ int gtp_dev_create(const char *ifname)
 
 	if (mnl_socket_sendto(nl, nlh, nlh->nlmsg_len) < 0) {
 		perror("mnl_socket_send");
-		return -1;
+		goto err;
 	}
 
 	ret = mnl_socket_recvfrom(nl, buf, sizeof(buf));
 	if (ret == -1) {
 		perror("read");
-		return -1;
+		goto err;
 	}
 
 	ret = mnl_cb_run(buf, ret, seq, portid, NULL, NULL);
 	if (ret == -1){
 		perror("callback");
-		return -1;
+		goto err;
 	}
 
 	mnl_socket_close(nl);
-
 	return 0;
+err:
+	mnl_socket_close(nl);
+	return -1;
 }
 EXPORT_SYMBOL(gtp_dev_create);
