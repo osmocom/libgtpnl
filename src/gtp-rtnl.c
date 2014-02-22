@@ -98,3 +98,21 @@ int gtp_dev_create(const char *ifname)
 	return gtp_dev_talk(nlh, seq);
 }
 EXPORT_SYMBOL(gtp_dev_create);
+
+int gtp_dev_destroy(const char *ifname)
+{
+	char buf[MNL_SOCKET_BUFFER_SIZE];
+	struct nlmsghdr *nlh;
+	struct ifinfomsg *ifm;
+	unsigned int seq = time(NULL);
+
+	nlh = gtp_put_nlmsg(buf, RTM_DELLINK, NLM_F_ACK, seq);
+	ifm = mnl_nlmsg_put_extra_header(nlh, sizeof(*ifm));
+	ifm->ifi_family = AF_INET;
+	ifm->ifi_change |= IFF_UP;
+	ifm->ifi_flags &= ~IFF_UP;
+	ifm->ifi_index = if_nametoindex(ifname);
+
+	return gtp_dev_talk(nlh, seq);
+}
+EXPORT_SYMBOL(gtp_dev_destroy);

@@ -4,7 +4,10 @@ global:
   genl_nlmsg_build_hdr;
   genl_socket_talk;
   genl_lookup_family;
+
   gtp_dev_create;
+  gtp_dev_destroy;
+
   gtp_add_tunnel;
   gtp_del_tunnel;
   gtp_list_tunnel;
