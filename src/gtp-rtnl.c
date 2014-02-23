@@ -72,7 +72,7 @@ err:
 	return -1;
 }
 
-int gtp_dev_create(const char *ifname)
+int gtp_dev_create(const char *ifname, int fd0, int fd1)
 {
 	char buf[MNL_SOCKET_BUFFER_SIZE];
 	struct nlmsghdr *nlh;
@@ -90,7 +90,8 @@ int gtp_dev_create(const char *ifname)
 	nest = mnl_attr_nest_start(nlh, IFLA_LINKINFO);
 	mnl_attr_put_str(nlh, IFLA_INFO_KIND, "gtp");
 	nest2 = mnl_attr_nest_start(nlh, IFLA_INFO_DATA);
-	mnl_attr_put_u32(nlh, IFLA_GTP_LOCAL_ADDR_IPV4, 0);
+	mnl_attr_put_u32(nlh, IFLA_GTP_FD0, fd0);
+	mnl_attr_put_u32(nlh, IFLA_GTP_FD1, fd1);
 	mnl_attr_put_u32(nlh, IFLA_GTP_HASHSIZE, 131072);
 	mnl_attr_nest_end(nlh, nest2);
 	mnl_attr_nest_end(nlh, nest);
