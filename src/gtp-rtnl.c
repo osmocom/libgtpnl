@@ -72,7 +72,8 @@ err:
 	return -1;
 }
 
-int gtp_dev_create(const char *ifname, int fd0, int fd1)
+int gtp_dev_create(const char *gtp_ifname, const char *real_ifname,
+		   int fd0, int fd1)
 {
 	char buf[MNL_SOCKET_BUFFER_SIZE];
 	struct nlmsghdr *nlh;
@@ -80,13 +81,15 @@ int gtp_dev_create(const char *ifname, int fd0, int fd1)
 	unsigned int seq = time(NULL);
 	struct nlattr *nest, *nest2;
 
-	nlh = gtp_put_nlmsg(buf, RTM_NEWLINK, NLM_F_CREATE | NLM_F_ACK, seq);
+	nlh = gtp_put_nlmsg(buf, RTM_NEWLINK,
+			    NLM_F_CREATE | NLM_F_EXCL | NLM_F_ACK, seq);
 	ifm = mnl_nlmsg_put_extra_header(nlh, sizeof(*ifm));
 	ifm->ifi_family = AF_INET;
 	ifm->ifi_change |= IFF_UP;
 	ifm->ifi_flags |= IFF_UP;
 
-	mnl_attr_put_u32(nlh, IFLA_LINK, if_nametoindex(ifname));
+	mnl_attr_put_u32(nlh, IFLA_LINK, if_nametoindex(real_ifname));
+	mnl_attr_put_str(nlh, IFLA_IFNAME, gtp_ifname);
 	nest = mnl_attr_nest_start(nlh, IFLA_LINKINFO);
 	mnl_attr_put_str(nlh, IFLA_INFO_KIND, "gtp");
 	nest2 = mnl_attr_nest_start(nlh, IFLA_INFO_DATA);
@@ -100,7 +103,7 @@ int gtp_dev_create(const char *ifname, int fd0, int fd1)
 }
 EXPORT_SYMBOL(gtp_dev_create);
 
-int gtp_dev_destroy(const char *ifname)
+int gtp_dev_destroy(const char *gtp_ifname)
 {
 	char buf[MNL_SOCKET_BUFFER_SIZE];
 	struct nlmsghdr *nlh;
@@ -112,7 +115,7 @@ int gtp_dev_destroy(const char *ifname)
 	ifm->ifi_family = AF_INET;
 	ifm->ifi_change |= IFF_UP;
 	ifm->ifi_flags &= ~IFF_UP;
-	ifm->ifi_index = if_nametoindex(ifname);
+	ifm->ifi_index = if_nametoindex(gtp_ifname);
 
 	return gtp_dev_talk(nlh, seq);
 }

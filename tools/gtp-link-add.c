@@ -28,18 +28,25 @@ int main(int argc, char *argv[])
 
 	nlh = mnl_nlmsg_put_header(buf);
 	nlh->nlmsg_type	= RTM_NEWLINK;
-	nlh->nlmsg_flags = NLM_F_REQUEST | NLM_F_CREATE | NLM_F_ACK;
+	nlh->nlmsg_flags = NLM_F_REQUEST | NLM_F_CREATE | NLM_F_EXCL |NLM_F_ACK;
 	nlh->nlmsg_seq = seq = time(NULL);
 	ifm = mnl_nlmsg_put_extra_header(nlh, sizeof(*ifm));
 	ifm->ifi_family = AF_INET;
 	ifm->ifi_change |= IFF_UP;
 	ifm->ifi_flags |= IFF_UP;
 
+	fprintf(stderr, "WARNING: attaching dummy socket descriptors. Use "
+			"this command for testing purposes only.\n"):
+	int fd1 = socket(AF_INET, SOCK_DGRAM, 0);
+	int fd2 = socket(AF_INET, SOCK_DGRAM, 0);
+
 	mnl_attr_put_u32(nlh, IFLA_LINK, if_nametoindex(argv[1]));
+	mnl_attr_put_str(nlh, IFLA_IFNAME, "gtp0");
 	nest = mnl_attr_nest_start(nlh, IFLA_LINKINFO);
 	mnl_attr_put_str(nlh, IFLA_INFO_KIND, "gtp");
 	nest2 = mnl_attr_nest_start(nlh, IFLA_INFO_DATA);
-	mnl_attr_put_u32(nlh, IFLA_GTP_LOCAL_ADDR_IPV4, 0);
+	mnl_attr_put_u32(nlh, IFLA_GTP_FD0, fd1);
+	mnl_attr_put_u32(nlh, IFLA_GTP_FD1, fd2);
 	mnl_attr_put_u32(nlh, IFLA_GTP_HASHSIZE, 131072);
 	mnl_attr_nest_end(nlh, nest2);
 	mnl_attr_nest_end(nlh, nest);
