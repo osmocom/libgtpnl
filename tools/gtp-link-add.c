@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	ifm->ifi_flags |= IFF_UP;
 
 	fprintf(stderr, "WARNING: attaching dummy socket descriptors. Use "
-			"this command for testing purposes only.\n"):
+			"this command for testing purposes only.\n");
 	int fd1 = socket(AF_INET, SOCK_DGRAM, 0);
 	int fd2 = socket(AF_INET, SOCK_DGRAM, 0);
 
