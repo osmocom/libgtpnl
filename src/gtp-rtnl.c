@@ -28,16 +28,14 @@ gtp_put_nlmsg(char *buf, uint16_t type, uint16_t nl_flags, uint32_t seq)
 	return nlh;
 }
 
-static int gtp_dev_talk(struct nlmsghdr *nlh, uint32_t seq)
+static struct mnl_socket *rtnl_open(void)
 {
 	struct mnl_socket *nl;
-	char buf[MNL_SOCKET_BUFFER_SIZE];
-	int ret;
 
 	nl = mnl_socket_open(NETLINK_ROUTE);
 	if (nl == NULL) {
 		perror("mnl_socket_open");
-		return -1;
+		return NULL;
 	}
 
 	if (mnl_socket_bind(nl, 0, MNL_SOCKET_AUTOPID) < 0) {
@@ -45,28 +43,42 @@ static int gtp_dev_talk(struct nlmsghdr *nlh, uint32_t seq)
 		goto err;
 	}
 
-	if (mnl_socket_sendto(nl, nlh, nlh->nlmsg_len) < 0) {
-		perror("mnl_socket_send");
-		goto err;
-	}
-
-	ret = mnl_socket_recvfrom(nl, buf, sizeof(buf));
-	if (ret == -1) {
-		perror("read");
-		goto err;
-	}
-
-	ret = mnl_cb_run(buf, ret, seq, mnl_socket_get_portid(nl), NULL, NULL);
-	if (ret == -1){
-		perror("callback");
-		goto err;
-	}
-
-	mnl_socket_close(nl);
-	return 0;
+	return nl;
 err:
 	mnl_socket_close(nl);
-	return -1;
+	return NULL;
+}
+
+static int rtnl_talk(struct mnl_socket *nl, struct nlmsghdr *nlh)
+{
+	char buf[MNL_SOCKET_BUFFER_SIZE];
+	int ret;
+
+	ret = mnl_socket_sendto(nl, nlh, nlh->nlmsg_len);
+	if (ret < 0)
+		return ret;
+
+	ret = mnl_socket_recvfrom(nl, buf, sizeof(buf));
+	if (ret < 0)
+		return ret;
+
+	return mnl_cb_run(buf, ret, nlh->nlmsg_seq, mnl_socket_get_portid(nl),
+			  NULL, NULL);
+}
+
+static int gtp_dev_talk(struct nlmsghdr *nlh, uint32_t seq)
+{
+	struct mnl_socket *nl;
+	int ret;
+
+	nl = rtnl_open();
+	if (nl == NULL)
+		return -1;
+
+	ret = rtnl_talk(nl, nlh);
+
+	mnl_socket_close(nl);
+	return ret;
 }
 
 int gtp_dev_create(const char *gtp_ifname, const char *real_ifname,
