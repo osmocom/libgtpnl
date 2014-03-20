@@ -148,7 +148,7 @@ static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 	}
 
 	printf("version %u ", pdp.version);
-	printf("tid %llu ms_addr %s ", pdp.tid, inet_ntoa(pdp.ms_addr));
+	printf("tid %llx ms_addr %s ", pdp.tid, inet_ntoa(pdp.ms_addr));
 	printf("sgsn_addr %s\n", inet_ntoa(pdp.sgsn_addr));
 
 	return MNL_CB_OK;
