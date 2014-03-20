@@ -17,6 +17,7 @@ struct gtp_tunnel {
 	struct in_addr	ms_addr;
 	struct in_addr	sgsn_addr;
 	uint64_t	tid;
+	uint16_t	flowid;
 	int		gtp_version;
 };
 

@@ -19,11 +19,13 @@ global:
   gtp_tunnel_set_sgsn_ip4;
   gtp_tunnel_set_version;
   gtp_tunnel_set_tid;
+  gtp_tunnel_set_flowid;
   gtp_tunnel_get_ifidx;
   gtp_tunnel_get_ms_ip4;
   gtp_tunnel_get_sgsn_ip4;
   gtp_tunnel_get_version;
   gtp_tunnel_get_tid;
+  gtp_tunnel_get_flowid;
 
 local: *;
 };

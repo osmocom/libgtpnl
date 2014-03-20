@@ -19,15 +19,14 @@
 
 #include "internal.h"
 
-static void gtp_build_payload(struct nlmsghdr *nlh, uint64_t tid,
-			      uint32_t ifidx, uint32_t sgsn_addr,
-			      uint32_t ms_addr, uint32_t version)
+static void gtp_build_payload(struct nlmsghdr *nlh, struct gtp_tunnel *t)
 {
-	mnl_attr_put_u32(nlh, GTPA_VERSION, version);
-	mnl_attr_put_u32(nlh, GTPA_LINK, ifidx);
-	mnl_attr_put_u32(nlh, GTPA_SGSN_ADDRESS, sgsn_addr);
-	mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, ms_addr);
-	mnl_attr_put_u64(nlh, GTPA_TID, tid);
+	mnl_attr_put_u32(nlh, GTPA_VERSION, t->gtp_version);
+	mnl_attr_put_u32(nlh, GTPA_LINK, t->ifidx);
+	mnl_attr_put_u32(nlh, GTPA_SGSN_ADDRESS, t->sgsn_addr.s_addr);
+	mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, t->ms_addr.s_addr);
+	mnl_attr_put_u64(nlh, GTPA_TID, t->tid);
+	mnl_attr_put_u16(nlh, GTPA_FLOWID, t->flowid);
 }
 
 int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
@@ -44,8 +43,7 @@ int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 
 	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_EXCL | NLM_F_ACK, ++seq,
 				   GTP_CMD_TUNNEL_NEW);
-	gtp_build_payload(nlh, t->tid, t->ifidx, t->sgsn_addr.s_addr,
-			  t->ms_addr.s_addr, t->gtp_version);
+	gtp_build_payload(nlh, t);
 
 	if (genl_socket_talk(nl, nlh, seq, NULL, NULL) < 0)
 		perror("genl_socket_talk");
@@ -62,7 +60,7 @@ int gtp_del_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 
 	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_ACK, ++seq,
 				   GTP_CMD_TUNNEL_DELETE);
-	gtp_build_payload(nlh, t->tid, t->ifidx, 0, 0, t->gtp_version);
+	gtp_build_payload(nlh, t);
 
 	if (genl_socket_talk(nl, nlh, seq, NULL, NULL) < 0)
 		perror("genl_socket_talk");

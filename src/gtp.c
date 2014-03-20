@@ -47,6 +47,12 @@ void gtp_tunnel_set_tid(struct gtp_tunnel *t, uint64_t tid)
 }
 EXPORT_SYMBOL(gtp_tunnel_set_tid);
 
+void gtp_tunnel_set_flowid(struct gtp_tunnel *t, uint16_t flowid)
+{
+	t->flowid = flowid;
+}
+EXPORT_SYMBOL(gtp_tunnel_set_flowid);
+
 const uint32_t gtp_tunnel_get_ifidx(struct gtp_tunnel *t)
 {
 	return t->ifidx;
@@ -76,3 +82,9 @@ uint64_t gtp_tunnel_get_tid(struct gtp_tunnel *t)
 	return t->tid;
 }
 EXPORT_SYMBOL(gtp_tunnel_get_tid);
+
+uint16_t gtp_tunnel_get_flowid(struct gtp_tunnel *t)
+{
+	return t->flowid;
+}
+EXPORT_SYMBOL(gtp_tunnel_get_flowid);
