@@ -45,9 +45,6 @@ static int gtp_dev_talk(struct nlmsghdr *nlh, uint32_t seq)
 		goto err;
 	}
 
-	mnl_nlmsg_fprintf(stdout, nlh, nlh->nlmsg_len,
-			  sizeof(struct ifinfomsg));
-
 	if (mnl_socket_sendto(nl, nlh, nlh->nlmsg_len) < 0) {
 		perror("mnl_socket_send");
 		goto err;
