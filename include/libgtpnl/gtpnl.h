@@ -14,8 +14,11 @@ int genl_socket_talk(struct mnl_socket *nl, struct nlmsghdr *nlh, uint32_t seq,
 		     void *data);
 int genl_lookup_family(struct mnl_socket *nl, const char *family);
 
+struct in_addr;
+
 int gtp_dev_create(const char *gtp_ifname, const char *real_ifname,
 		   int fd0, int fd1);
+int gtp_dev_config(const char *iface, struct in_addr *net, uint32_t prefix);
 int gtp_dev_destroy(const char *gtp_ifname);
 
 struct gtp_tunnel;

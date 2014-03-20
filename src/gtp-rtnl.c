@@ -8,10 +8,11 @@
 #include <net/if.h>
 #include <linux/if_link.h>
 #include <linux/rtnetlink.h>
-
 #include <libgtpnl/gtpnl.h>
-
 #include <linux/gtp_nl.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <time.h>
 
 #include "internal.h"
 
@@ -129,3 +130,48 @@ int gtp_dev_destroy(const char *gtp_ifname)
 	return gtp_dev_talk(nlh, seq);
 }
 EXPORT_SYMBOL(gtp_dev_destroy);
+
+int gtp_dev_config(const char *ifname, struct in_addr *dst, uint32_t prefix)
+{
+	struct mnl_socket *nl;
+	char buf[MNL_SOCKET_BUFFER_SIZE];
+	struct nlmsghdr *nlh;
+	struct rtmsg *rtm;
+	int iface, ret;
+
+	iface = if_nametoindex(ifname);
+	if (iface == 0) {
+		perror("if_nametoindex");
+		return -1;
+	}
+
+	nlh = mnl_nlmsg_put_header(buf);
+	nlh->nlmsg_type	= RTM_NEWROUTE;
+	nlh->nlmsg_flags = NLM_F_REQUEST | NLM_F_CREATE | NLM_F_ACK;
+	nlh->nlmsg_seq = time(NULL);
+
+	rtm = mnl_nlmsg_put_extra_header(nlh, sizeof(struct rtmsg));
+	rtm->rtm_family = AF_INET;
+	rtm->rtm_dst_len = prefix;
+	rtm->rtm_src_len = 0;
+	rtm->rtm_tos = 0;
+	rtm->rtm_protocol = RTPROT_STATIC;
+	rtm->rtm_table = RT_TABLE_MAIN;
+	rtm->rtm_type = RTN_UNICAST;
+	rtm->rtm_scope = RT_SCOPE_UNIVERSE;
+	rtm->rtm_flags = 0;
+
+	mnl_attr_put_u32(nlh, RTA_DST, dst->s_addr);
+	mnl_attr_put_u32(nlh, RTA_OIF, iface);
+
+	nl = rtnl_open();
+	if (nl == NULL)
+		return -1;
+
+	ret = rtnl_talk(nl, nlh);
+
+	mnl_socket_close(nl);
+
+	return ret;
+}
+EXPORT_SYMBOL(gtp_dev_config);
