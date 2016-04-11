@@ -50,7 +50,7 @@ static void gtp_build_payload(struct nlmsghdr *nlh, struct gtp_tunnel *t)
 	mnl_attr_put_u32(nlh, GTPA_SGSN_ADDRESS, t->sgsn_addr.s_addr);
 	mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, t->ms_addr.s_addr);
 	mnl_attr_put_u64(nlh, GTPA_TID, t->tid);
-	mnl_attr_put_u16(nlh, GTPA_FLOWID, t->flowid);
+	mnl_attr_put_u16(nlh, GTPA_FLOW, t->flowid);
 }
 
 int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)

@@ -39,7 +39,7 @@ enum gtp_attrs {
 	GTPA_TID,	/* 64 bits for GTPv1 */
 	GTPA_SGSN_ADDRESS,
 	GTPA_MS_ADDRESS,
-	GTPA_FLOWID,	/* only for GTPv0 */
+	GTPA_FLOW,	/* only for GTPv0 */
 	GTPA_NET_NS_FD,
 	__GTPA_MAX,
 };
