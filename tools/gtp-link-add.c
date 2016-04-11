@@ -43,8 +43,8 @@ int main(int argc, char *argv[])
 	unsigned int seq, portid, change = 0, flags = 0;
 	struct nlattr *nest, *nest2;
 
-	if (argc != 2) {
-		printf("Usage: %s [ifname]\n", argv[0]);
+	if (argc != 1) {
+		printf("Usage: %s\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
@@ -62,7 +62,6 @@ int main(int argc, char *argv[])
 	int fd1 = socket(AF_INET, SOCK_DGRAM, 0);
 	int fd2 = socket(AF_INET, SOCK_DGRAM, 0);
 
-	mnl_attr_put_u32(nlh, IFLA_LINK, if_nametoindex(argv[1]));
 	mnl_attr_put_str(nlh, IFLA_IFNAME, "gtp0");
 	nest = mnl_attr_nest_start(nlh, IFLA_LINKINFO);
 	mnl_attr_put_str(nlh, IFLA_INFO_KIND, "gtp");
