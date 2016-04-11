@@ -49,8 +49,13 @@ static void gtp_build_payload(struct nlmsghdr *nlh, struct gtp_tunnel *t)
 	mnl_attr_put_u32(nlh, GTPA_LINK, t->ifidx);
 	mnl_attr_put_u32(nlh, GTPA_SGSN_ADDRESS, t->sgsn_addr.s_addr);
 	mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, t->ms_addr.s_addr);
-	mnl_attr_put_u64(nlh, GTPA_TID, t->tid);
-	mnl_attr_put_u16(nlh, GTPA_FLOW, t->flowid);
+	if (t->gtp_version == GTP_V0) {
+		mnl_attr_put_u64(nlh, GTPA_TID, t->u.v0.tid);
+		mnl_attr_put_u16(nlh, GTPA_FLOW, t->u.v0.flowid);
+	} else if (t->gtp_version == GTP_V1) {
+		mnl_attr_put_u32(nlh, GTPA_I_TEI, t->u.v1.i_tei);
+		mnl_attr_put_u32(nlh, GTPA_O_TEI, t->u.v1.o_tei);
+	}
 }
 
 int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
@@ -95,7 +100,15 @@ EXPORT_SYMBOL(gtp_del_tunnel);
 
 struct gtp_pdp {
 	uint32_t	version;
-	uint64_t	tid;
+	union {
+		struct {
+			uint64_t tid;
+		} v0;
+		struct {
+			uint32_t i_tei;
+			uint32_t o_tei;
+		} v1;
+	} u;
 	struct in_addr	sgsn_addr;
 	struct in_addr	ms_addr;
 };
@@ -115,6 +128,8 @@ static int genl_gtp_validate_cb(const struct nlattr *attr, void *data)
 			return MNL_CB_ERROR;
 		}
 		break;
+	case GTPA_O_TEI:
+	case GTPA_I_TEI:
 	case GTPA_SGSN_ADDRESS:
 	case GTPA_MS_ADDRESS:
 	case GTPA_VERSION:
@@ -138,7 +153,11 @@ static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 
 	mnl_attr_parse(nlh, sizeof(*genl), genl_gtp_validate_cb, tb);
 	if (tb[GTPA_TID])
-		pdp.tid = mnl_attr_get_u64(tb[GTPA_TID]);
+		pdp.u.v0.tid = mnl_attr_get_u64(tb[GTPA_TID]);
+	if (tb[GTPA_I_TEI])
+		pdp.u.v1.i_tei = mnl_attr_get_u32(tb[GTPA_I_TEI]);
+	if (tb[GTPA_O_TEI])
+		pdp.u.v1.o_tei = mnl_attr_get_u32(tb[GTPA_O_TEI]);
 	if (tb[GTPA_SGSN_ADDRESS]) {
 		pdp.sgsn_addr.s_addr =
 			mnl_attr_get_u32(tb[GTPA_SGSN_ADDRESS]);
@@ -151,7 +170,12 @@ static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 	}
 
 	printf("version %u ", pdp.version);
-	printf("tid %"PRIu64" ms_addr %s ", pdp.tid, inet_ntoa(pdp.sgsn_addr));
+	if (pdp.version == GTP_V0)
+		printf("tid %"PRIu64" ms_addr %s ",
+		       pdp.u.v0.tid, inet_ntoa(pdp.sgsn_addr));
+	else if (pdp.version == GTP_V1)
+		printf("tei %u/%u ms_addr %s ", pdp.u.v1.i_tei,
+		       pdp.u.v1.o_tei, inet_ntoa(pdp.sgsn_addr));
 	printf("sgsn_addr %s\n", inet_ntoa(pdp.ms_addr));
 
 	return MNL_CB_OK;

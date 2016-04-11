@@ -71,15 +71,27 @@ EXPORT_SYMBOL(gtp_tunnel_set_version);
 
 void gtp_tunnel_set_tid(struct gtp_tunnel *t, uint64_t tid)
 {
-	t->tid = tid;
+	t->u.v0.tid = tid;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_tid);
 
 void gtp_tunnel_set_flowid(struct gtp_tunnel *t, uint16_t flowid)
 {
-	t->flowid = flowid;
+	t->u.v0.flowid = flowid;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_flowid);
+
+void gtp_tunnel_set_i_tei(struct gtp_tunnel *t, uint32_t i_tei)
+{
+	t->u.v1.i_tei = i_tei;
+}
+EXPORT_SYMBOL(gtp_tunnel_set_i_tei);
+
+void gtp_tunnel_set_o_tei(struct gtp_tunnel *t, uint32_t o_tei)
+{
+	t->u.v1.o_tei = o_tei;
+}
+EXPORT_SYMBOL(gtp_tunnel_set_o_tei);
 
 const int gtp_tunnel_get_ifns(struct gtp_tunnel *t)
 {
@@ -113,12 +125,24 @@ EXPORT_SYMBOL(gtp_tunnel_get_version);
 
 uint64_t gtp_tunnel_get_tid(struct gtp_tunnel *t)
 {
-	return t->tid;
+	return t->u.v0.tid;
 }
 EXPORT_SYMBOL(gtp_tunnel_get_tid);
 
 uint16_t gtp_tunnel_get_flowid(struct gtp_tunnel *t)
 {
-	return t->flowid;
+	return t->u.v0.flowid;
 }
 EXPORT_SYMBOL(gtp_tunnel_get_flowid);
+
+uint32_t gtp_tunnel_get_i_tei(struct gtp_tunnel *t)
+{
+	return t->u.v1.i_tei;
+}
+EXPORT_SYMBOL(gtp_tunnel_get_i_tei);
+
+uint32_t gtp_tunnel_get_o_tei(struct gtp_tunnel *t)
+{
+	return t->u.v1.o_tei;
+}
+EXPORT_SYMBOL(gtp_tunnel_get_o_tei);

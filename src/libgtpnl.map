@@ -22,6 +22,8 @@ global:
   gtp_tunnel_set_version;
   gtp_tunnel_set_tid;
   gtp_tunnel_set_flowid;
+  gtp_tunnel_set_i_tei;
+  gtp_tunnel_set_o_tei;
   gtp_tunnel_get_ifns;
   gtp_tunnel_get_ifidx;
   gtp_tunnel_get_ms_ip4;
@@ -29,6 +31,8 @@ global:
   gtp_tunnel_get_version;
   gtp_tunnel_get_tid;
   gtp_tunnel_get_flowid;
+  gtp_tunnel_get_i_tei;
+  gtp_tunnel_get_o_tei;
 
 local: *;
 };

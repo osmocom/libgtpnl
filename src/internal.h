@@ -17,9 +17,17 @@ struct gtp_tunnel {
 	uint32_t	ifidx;
 	struct in_addr	ms_addr;
 	struct in_addr	sgsn_addr;
-	uint64_t	tid;
-	uint16_t	flowid;
 	int		gtp_version;
+	union {
+		struct {
+			uint64_t tid;
+			uint16_t flowid;
+		} v0;
+		struct {
+			uint32_t i_tei;
+			uint32_t o_tei;
+		} v1;
+	} u;
 };
 
 #endif

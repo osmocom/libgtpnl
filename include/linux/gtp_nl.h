@@ -41,6 +41,8 @@ enum gtp_attrs {
 	GTPA_MS_ADDRESS,
 	GTPA_FLOW,	/* only for GTPv0 */
 	GTPA_NET_NS_FD,
+	GTPA_I_TEI,
+	GTPA_O_TEI,
 	__GTPA_MAX,
 };
 #define GTPA_MAX (__GTPA_MAX + 1)
