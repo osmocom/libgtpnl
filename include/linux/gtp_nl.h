@@ -40,6 +40,7 @@ enum gtp_attrs {
 	GTPA_SGSN_ADDRESS,
 	GTPA_MS_ADDRESS,
 	GTPA_FLOWID,	/* only for GTPv0 */
+	GTPA_NET_NS_FD,
 	__GTPA_MAX,
 };
 #define GTPA_MAX (__GTPA_MAX + 1)

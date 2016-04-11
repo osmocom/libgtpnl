@@ -44,6 +44,8 @@
 static void gtp_build_payload(struct nlmsghdr *nlh, struct gtp_tunnel *t)
 {
 	mnl_attr_put_u32(nlh, GTPA_VERSION, t->gtp_version);
+	if (t->ifns >= 0)
+		mnl_attr_put_u32(nlh, GTPA_NET_NS_FD, t->ifns);
 	mnl_attr_put_u32(nlh, GTPA_LINK, t->ifidx);
 	mnl_attr_put_u32(nlh, GTPA_SGSN_ADDRESS, t->sgsn_addr.s_addr);
 	mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, t->ms_addr.s_addr);

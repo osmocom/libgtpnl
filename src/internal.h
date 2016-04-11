@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 
 struct gtp_tunnel {
+	int             ifns;
 	uint32_t	ifidx;
 	struct in_addr	ms_addr;
 	struct in_addr	sgsn_addr;

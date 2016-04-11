@@ -104,7 +104,7 @@ static int gtp_dev_talk(struct nlmsghdr *nlh, uint32_t seq)
 	return ret;
 }
 
-int gtp_dev_create(const char *gtp_ifname, const char *real_ifname,
+int gtp_dev_create(int dest_ns, const char *gtp_ifname, const char *real_ifname,
 		   int fd0, int fd1)
 {
 	char buf[MNL_SOCKET_BUFFER_SIZE];
@@ -120,6 +120,8 @@ int gtp_dev_create(const char *gtp_ifname, const char *real_ifname,
 	ifm->ifi_change |= IFF_UP;
 	ifm->ifi_flags |= IFF_UP;
 
+	if (dest_ns >= 0)
+		mnl_attr_put_u32(nlh, IFLA_NET_NS_FD, dest_ns);
 	mnl_attr_put_u32(nlh, IFLA_LINK, if_nametoindex(real_ifname));
 	mnl_attr_put_str(nlh, IFLA_IFNAME, gtp_ifname);
 	nest = mnl_attr_nest_start(nlh, IFLA_LINKINFO);
