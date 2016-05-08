@@ -1,6 +1,8 @@
 /* Command line utility to create GTP link */
 
 /* (C) 2014 by sysmocom - s.f.m.c. GmbH
+ * (C) 2016 by Pablo Neira Ayuso <pablo@netfilter.org>
+ *
  * Author: Pablo Neira Ayuso <pablo@gnumonks.org>
  *
  * All Rights Reserved
@@ -34,6 +36,8 @@
 #include <linux/gtp.h>
 #include <linux/if_link.h>
 
+#include <libgtpnl/gtpnl.h>
+
 int main(int argc, char *argv[])
 {
 	struct mnl_socket *nl;
@@ -44,9 +48,17 @@ int main(int argc, char *argv[])
 	unsigned int seq, portid, change = 0, flags = 0;
 	struct nlattr *nest, *nest2;
 
-	if (argc != 1) {
-		printf("Usage: %s\n", argv[0]);
+	if (argc != 3) {
+		printf("Usage: %s <add|del> <device>\n", argv[0]);
 		exit(EXIT_FAILURE);
+	}
+
+	if (!strcmp(argv[1], "del")) {
+		printf("destroying gtp interface...\n");
+		if (gtp_dev_destroy(argv[2]) < 0)
+			perror("gtp_dev_destroy");
+
+		return 0;
 	}
 
 	nlh = mnl_nlmsg_put_header(buf);
@@ -58,12 +70,10 @@ int main(int argc, char *argv[])
 	ifm->ifi_change |= IFF_UP;
 	ifm->ifi_flags |= IFF_UP;
 
-	fprintf(stderr, "WARNING: attaching dummy socket descriptors. Use "
-			"this command for testing purposes only.\n");
 	int fd1 = socket(AF_INET, SOCK_DGRAM, 0);
 	int fd2 = socket(AF_INET, SOCK_DGRAM, 0);
 
-	mnl_attr_put_str(nlh, IFLA_IFNAME, "gtp0");
+	mnl_attr_put_str(nlh, IFLA_IFNAME, argv[2]);
 	nest = mnl_attr_nest_start(nlh, IFLA_LINKINFO);
 	mnl_attr_put_str(nlh, IFLA_INFO_KIND, "gtp");
 	nest2 = mnl_attr_nest_start(nlh, IFLA_INFO_DATA);
@@ -106,6 +116,10 @@ int main(int argc, char *argv[])
 	}
 
 	mnl_socket_close(nl);
+
+	fprintf(stderr, "WARNING: attaching dummy socket descriptors. Keep "
+			"this process running for testing purposes.\n");
+	pause();
 
 	return 0;
 }
