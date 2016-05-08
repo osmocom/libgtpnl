@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 	struct nlmsghdr *nlh;
 	struct ifinfomsg *ifm;
 	int ret;
-	unsigned int seq, portid, change = 0, flags = 0;
+	unsigned int seq, portid;
 	struct nlattr *nest, *nest2;
 
 	if (argc != 3) {
