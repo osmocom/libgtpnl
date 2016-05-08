@@ -222,10 +222,10 @@ static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 	printf("version %u ", pdp.version);
 	if (pdp.version == GTP_V0)
 		printf("tid %"PRIu64" ms_addr %s ",
-		       pdp.u.v0.tid, inet_ntoa(pdp.sgsn_addr));
+		       pdp.u.v0.tid, inet_ntoa(pdp.ms_addr));
 	else if (pdp.version == GTP_V1)
 		printf("tei %u/%u ms_addr %s ", pdp.u.v1.i_tei,
-		       pdp.u.v1.o_tei, inet_ntoa(pdp.sgsn_addr));
+		       pdp.u.v1.o_tei, inet_ntoa(pdp.ms_addr));
 	printf("sgsn_addr %s\n", inet_ntoa(pdp.sgsn_addr));
 
 	return MNL_CB_OK;
