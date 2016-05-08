@@ -86,6 +86,8 @@ add_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 	}
 	gtp_tunnel_set_version(t, gtp_version);
 
+	optidx++;
+
 	if (gtp_version == GTP_V0)
 		gtp_tunnel_set_tid(t, atoi(argv[optidx++]));
 	else if (gtp_version == GTP_V1) {
