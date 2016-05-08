@@ -37,7 +37,8 @@
 #include <libgtpnl/gtpnl.h>
 
 #include <net/if.h>
-#include <linux/gtp_nl.h>
+#include <linux/gtp.h>
+#include <linux/if_link.h>
 
 #include "internal.h"
 
@@ -71,7 +72,7 @@ int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 	}
 
 	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_EXCL | NLM_F_ACK, ++seq,
-				   GTP_CMD_TUNNEL_NEW);
+				   GTP_CMD_NEWPDP);
 	gtp_build_payload(nlh, t);
 
 	if (genl_socket_talk(nl, nlh, seq, NULL, NULL) < 0)
@@ -88,7 +89,7 @@ int gtp_del_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 	uint32_t seq = time(NULL);
 
 	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_ACK, ++seq,
-				   GTP_CMD_TUNNEL_DELETE);
+				   GTP_CMD_DELPDP);
 	gtp_build_payload(nlh, t);
 
 	if (genl_socket_talk(nl, nlh, seq, NULL, NULL) < 0)
@@ -188,7 +189,7 @@ int gtp_list_tunnel(int genl_id, struct mnl_socket *nl)
 	uint32_t seq = time(NULL);
 
 	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_DUMP, 0,
-				   GTP_CMD_TUNNEL_GET);
+				   GTP_CMD_GETPDP);
 
 	if (genl_socket_talk(nl, nlh, seq, genl_gtp_attr_cb, NULL) < 0) {
 		perror("genl_socket_talk");

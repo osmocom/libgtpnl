@@ -1,1 +1,2 @@
-noinst_HEADERS = gtp_nl.h
+noinst_HEADERS = gtp.h		\
+		 if_link.h

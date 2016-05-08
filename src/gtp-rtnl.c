@@ -31,7 +31,8 @@
 #include <linux/if_link.h>
 #include <linux/rtnetlink.h>
 #include <libgtpnl/gtpnl.h>
-#include <linux/gtp_nl.h>
+#include <linux/gtp.h>
+#include <linux/if_link.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <time.h>
@@ -127,7 +128,7 @@ int gtp_dev_create(int dest_ns, const char *gtp_ifname, int fd0, int fd1)
 	nest2 = mnl_attr_nest_start(nlh, IFLA_INFO_DATA);
 	mnl_attr_put_u32(nlh, IFLA_GTP_FD0, fd0);
 	mnl_attr_put_u32(nlh, IFLA_GTP_FD1, fd1);
-	mnl_attr_put_u32(nlh, IFLA_GTP_HASHSIZE, 131072);
+	mnl_attr_put_u32(nlh, IFLA_GTP_PDP_HASHSIZE, 131072);
 	mnl_attr_nest_end(nlh, nest2);
 	mnl_attr_nest_end(nlh, nest);
 

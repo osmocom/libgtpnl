@@ -34,7 +34,8 @@
 #include <libmnl/libmnl.h>
 #include <linux/genetlink.h>
 
-#include <linux/gtp_nl.h>
+#include <linux/gtp.h>
+#include <linux/if_link.h>
 #include <libgtpnl/gtp.h>
 #include <libgtpnl/gtpnl.h>
 
@@ -238,7 +239,7 @@ list_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 	uint32_t seq = time(NULL);
 
 	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_DUMP, 0,
-				   GTP_CMD_TUNNEL_GET);
+				   GTP_CMD_GETPDP);
 
 	if (genl_socket_talk(nl, nlh, seq, genl_gtp_attr_cb, NULL) < 0) {
 		perror("genl_socket_talk");
