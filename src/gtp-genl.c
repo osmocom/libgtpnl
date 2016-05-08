@@ -149,6 +149,7 @@ static int genl_gtp_validate_cb(const struct nlattr *attr, void *data)
 static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 {
 	struct nlattr *tb[GTPA_MAX + 1] = {};
+	char buf[INET_ADDRSTRLEN];
 	struct gtp_pdp pdp = {};
 	struct genlmsghdr *genl;
 
@@ -171,13 +172,17 @@ static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 	}
 
 	printf("version %u ", pdp.version);
-	if (pdp.version == GTP_V0)
+	if (pdp.version == GTP_V0) {
+		inet_ntop(AF_INET, &pdp.ms_addr, buf, sizeof(buf));
 		printf("tid %"PRIu64" ms_addr %s ",
-		       pdp.u.v0.tid, inet_ntoa(pdp.sgsn_addr));
-	else if (pdp.version == GTP_V1)
+		       pdp.u.v0.tid, buf);
+	} else if (pdp.version == GTP_V1) {
+		inet_ntop(AF_INET, &pdp.ms_addr, buf, sizeof(buf));
 		printf("tei %u/%u ms_addr %s ", pdp.u.v1.i_tei,
-		       pdp.u.v1.o_tei, inet_ntoa(pdp.sgsn_addr));
-	printf("sgsn_addr %s\n", inet_ntoa(pdp.ms_addr));
+		       pdp.u.v1.o_tei, buf);
+	}
+	inet_ntop(AF_INET, &pdp.sgsn_addr, buf, sizeof(buf));
+	printf("sgsn_addr %s\n", buf);
 
 	return MNL_CB_OK;
 }
