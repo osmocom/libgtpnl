@@ -1,6 +1,8 @@
 /* Command line utility to create GTP tunnels (PDP contexts) */
 
 /* (C) 2014 by sysmocom - s.f.m.c. GmbH
+ * (C) 2016 by Pablo Neira Ayuso <pablo@netfilter.org>
+ *
  * Author: Pablo Neira Ayuso <pablo@gnumonks.org>
  *
  * All Rights Reserved
@@ -163,90 +165,10 @@ struct gtp_pdp {
 	struct in_addr	ms_addr;
 };
 
-static int genl_gtp_validate_cb(const struct nlattr *attr, void *data)
-{
-	const struct nlattr **tb = data;
-	int type = mnl_attr_get_type(attr);
-
-	if (mnl_attr_type_valid(attr, CTRL_ATTR_MAX) < 0)
-		return MNL_CB_OK;
-
-	switch(type) {
-	case GTPA_TID:
-		if (mnl_attr_validate(attr, MNL_TYPE_U64) < 0) {
-			perror("mnl_attr_validate");
-			return MNL_CB_ERROR;
-		}
-		break;
-	case GTPA_I_TEI:
-	case GTPA_O_TEI:
-	case GTPA_SGSN_ADDRESS:
-	case GTPA_MS_ADDRESS:
-	case GTPA_VERSION:
-		if (mnl_attr_validate(attr, MNL_TYPE_U32) < 0) {
-			perror("mnl_attr_validate");
-			return MNL_CB_ERROR;
-		}
-		break;
-	default:
-		break;
-	}
-	tb[type] = attr;
-	return MNL_CB_OK;
-}
-
-static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
-{
-	struct nlattr *tb[GTPA_MAX + 1] = {};
-	struct gtp_pdp pdp = {};
-	struct genlmsghdr *genl;
-
-	mnl_attr_parse(nlh, sizeof(*genl), genl_gtp_validate_cb, tb);
-	if (tb[GTPA_TID])
-		pdp.u.v0.tid = mnl_attr_get_u64(tb[GTPA_TID]);
-	if (tb[GTPA_I_TEI])
-		pdp.u.v1.i_tei = mnl_attr_get_u32(tb[GTPA_I_TEI]);
-	if (tb[GTPA_O_TEI])
-		pdp.u.v1.o_tei = mnl_attr_get_u32(tb[GTPA_O_TEI]);
-	if (tb[GTPA_SGSN_ADDRESS]) {
-		pdp.sgsn_addr.s_addr =
-			mnl_attr_get_u32(tb[GTPA_SGSN_ADDRESS]);
-	}
-	if (tb[GTPA_MS_ADDRESS]) {
-		pdp.ms_addr.s_addr = mnl_attr_get_u32(tb[GTPA_MS_ADDRESS]);
-	}
-	if (tb[GTPA_VERSION]) {
-		pdp.version = mnl_attr_get_u32(tb[GTPA_VERSION]);
-	}
-
-	printf("version %u ", pdp.version);
-	if (pdp.version == GTP_V0)
-		printf("tid %"PRIu64" ms_addr %s ",
-		       pdp.u.v0.tid, inet_ntoa(pdp.ms_addr));
-	else if (pdp.version == GTP_V1)
-		printf("tei %u/%u ms_addr %s ", pdp.u.v1.i_tei,
-		       pdp.u.v1.o_tei, inet_ntoa(pdp.ms_addr));
-	printf("sgsn_addr %s\n", inet_ntoa(pdp.sgsn_addr));
-
-	return MNL_CB_OK;
-}
-
 static int
 list_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 {
-	char buf[MNL_SOCKET_BUFFER_SIZE];
-	struct nlmsghdr *nlh;
-	uint32_t seq = time(NULL);
-
-	nlh = genl_nlmsg_build_hdr(buf, genl_id, NLM_F_DUMP, 0,
-				   GTP_CMD_GETPDP);
-
-	if (genl_socket_talk(nl, nlh, seq, genl_gtp_attr_cb, NULL) < 0) {
-		perror("genl_socket_talk");
-		return 0;
-	}
-
-	return 0;
+	return gtp_list_tunnel(genl_id, nl);
 }
 
 int main(int argc, char *argv[])
