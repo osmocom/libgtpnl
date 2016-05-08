@@ -29,7 +29,14 @@
 
 struct gtp_tunnel *gtp_tunnel_alloc(void)
 {
-	return calloc(1, sizeof(struct gtp_tunnel));
+	struct gtp_tunnel *t;
+
+	t = calloc(1, sizeof(struct gtp_tunnel));
+	if (!t)
+		return NULL;
+
+	t->ifns = -1;
+	return t;
 }
 EXPORT_SYMBOL(gtp_tunnel_alloc);
 
