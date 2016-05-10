@@ -27,6 +27,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include <libmnl/libmnl.h>
 #include <linux/if.h>
@@ -72,6 +74,31 @@ int main(int argc, char *argv[])
 
 	int fd1 = socket(AF_INET, SOCK_DGRAM, 0);
 	int fd2 = socket(AF_INET, SOCK_DGRAM, 0);
+	struct sockaddr_in sockaddr_fd1 = {
+		.sin_family	= AF_INET,
+		.sin_port	= htons(3386),
+		.sin_addr	= {
+			.s_addr 	= INADDR_ANY,
+		},
+	};
+	struct sockaddr_in sockaddr_fd2 = {
+		.sin_family	= AF_INET,
+		.sin_port	= htons(2152),
+		.sin_addr	= {
+			.s_addr 	= INADDR_ANY,
+		},
+	};
+
+	if (bind(fd1, (struct sockaddr *) &sockaddr_fd1,
+		 sizeof(sockaddr_fd1)) < 0) {
+		perror("bind");
+		exit(EXIT_FAILURE);
+	}
+	if (bind(fd2, (struct sockaddr *) &sockaddr_fd2,
+		 sizeof(sockaddr_fd2)) < 0) {
+		perror("bind");
+		exit(EXIT_FAILURE);
+	}
 
 	mnl_attr_put_str(nlh, IFLA_IFNAME, argv[2]);
 	nest = mnl_attr_nest_start(nlh, IFLA_LINKINFO);
@@ -119,7 +146,15 @@ int main(int argc, char *argv[])
 
 	fprintf(stderr, "WARNING: attaching dummy socket descriptors. Keep "
 			"this process running for testing purposes.\n");
-	pause();
+
+	while (1) {
+		struct sockaddr_in addr;
+		socklen_t len = sizeof(addr);
+
+		ret = recvfrom(fd1, buf, sizeof(buf), 0,
+			       (struct sockaddr *)&addr, &len);
+		printf("received %d bytes via UDP socket\n", ret);
+	}
 
 	return 0;
 }
