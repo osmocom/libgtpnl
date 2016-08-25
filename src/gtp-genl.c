@@ -119,7 +119,7 @@ static int genl_gtp_validate_cb(const struct nlattr *attr, void *data)
 	const struct nlattr **tb = data;
 	int type = mnl_attr_get_type(attr);
 
-	if (mnl_attr_type_valid(attr, CTRL_ATTR_MAX) < 0)
+	if (mnl_attr_type_valid(attr, GTPA_MAX) < 0)
 		return MNL_CB_OK;
 
 	switch(type) {
