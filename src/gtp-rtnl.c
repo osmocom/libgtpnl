@@ -105,7 +105,8 @@ static int gtp_dev_talk(struct nlmsghdr *nlh, uint32_t seq)
 	return ret;
 }
 
-int gtp_dev_create(int dest_ns, const char *gtp_ifname, int fd0, int fd1)
+static int _gtp_dev_create(int dest_ns, const char *gtp_ifname, int fd0,
+			   int fd1, enum ifla_gtp_role role)
 {
 	char buf[MNL_SOCKET_BUFFER_SIZE];
 	struct nlmsghdr *nlh;
@@ -134,7 +135,18 @@ int gtp_dev_create(int dest_ns, const char *gtp_ifname, int fd0, int fd1)
 
 	return gtp_dev_talk(nlh, seq);
 }
+
+int gtp_dev_create(int dest_ns, const char *gtp_ifname, int fd0, int fd1)
+{
+	return _gtp_dev_create(dest_ns, gtp_ifname, fd0, fd1, GTP_ROLE_GGSN);
+}
 EXPORT_SYMBOL(gtp_dev_create);
+
+int gtp_dev_create_sgsn(int dest_ns, const char *gtp_ifname, int fd0, int fd1)
+{
+	return _gtp_dev_create(dest_ns, gtp_ifname, fd0, fd1, GTP_ROLE_SGSN);
+}
+EXPORT_SYMBOL(gtp_dev_create_sgsn);
 
 int gtp_dev_destroy(const char *gtp_ifname)
 {

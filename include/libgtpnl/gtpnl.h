@@ -17,6 +17,7 @@ int genl_lookup_family(struct mnl_socket *nl, const char *family);
 struct in_addr;
 
 int gtp_dev_create(int dest_ns, const char *gtp_ifname, int fd0, int fd1);
+int gtp_dev_create_sgsn(int dest_ns, const char *gtp_ifname, int fd0, int fd1);
 int gtp_dev_config(const char *iface, struct in_addr *net, uint32_t prefix);
 int gtp_dev_destroy(const char *gtp_ifname);
 
