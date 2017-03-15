@@ -43,9 +43,9 @@
 int main(int argc, char *argv[])
 {
 	char buf[MNL_SOCKET_BUFFER_SIZE];
-	int ret;
+	int ret, sgsn_mode = 0;
 
-	if (argc != 3) {
+	if (argc < 3) {
 		printf("Usage: %s <add|del> <device>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
@@ -57,6 +57,9 @@ int main(int argc, char *argv[])
 
 		return 0;
 	}
+
+	if (argc > 3 && !strcmp(argv[3], "--sgsn"))
+		sgsn_mode = 1;
 
 	int fd1 = socket(AF_INET, SOCK_DGRAM, 0);
 	int fd2 = socket(AF_INET, SOCK_DGRAM, 0);
@@ -86,7 +89,10 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	ret = gtp_dev_create(-1, argv[2], fd1, fd2);
+	if (sgsn_mode)
+		ret = gtp_dev_create_sgsn(-1, argv[2], fd1, fd2);
+	else
+		ret = gtp_dev_create(-1, argv[2], fd1, fd2);
 	if (ret < 0) {
 		perror("cannot create GTP device\n");
 		exit(EXIT_FAILURE);

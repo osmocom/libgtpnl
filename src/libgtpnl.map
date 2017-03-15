@@ -6,6 +6,7 @@ global:
   genl_lookup_family;
 
   gtp_dev_create;
+  gtp_dev_create_sgsn;
   gtp_dev_config;
   gtp_dev_destroy;
 
