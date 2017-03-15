@@ -42,13 +42,8 @@
 
 int main(int argc, char *argv[])
 {
-	struct mnl_socket *nl;
 	char buf[MNL_SOCKET_BUFFER_SIZE];
-	struct nlmsghdr *nlh;
-	struct ifinfomsg *ifm;
 	int ret;
-	unsigned int seq, portid;
-	struct nlattr *nest, *nest2;
 
 	if (argc != 3) {
 		printf("Usage: %s <add|del> <device>\n", argv[0]);
@@ -62,15 +57,6 @@ int main(int argc, char *argv[])
 
 		return 0;
 	}
-
-	nlh = mnl_nlmsg_put_header(buf);
-	nlh->nlmsg_type	= RTM_NEWLINK;
-	nlh->nlmsg_flags = NLM_F_REQUEST | NLM_F_CREATE | NLM_F_EXCL |NLM_F_ACK;
-	nlh->nlmsg_seq = seq = time(NULL);
-	ifm = mnl_nlmsg_put_extra_header(nlh, sizeof(*ifm));
-	ifm->ifi_family = AF_INET;
-	ifm->ifi_change |= IFF_UP;
-	ifm->ifi_flags |= IFF_UP;
 
 	int fd1 = socket(AF_INET, SOCK_DGRAM, 0);
 	int fd2 = socket(AF_INET, SOCK_DGRAM, 0);
@@ -100,49 +86,11 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	mnl_attr_put_str(nlh, IFLA_IFNAME, argv[2]);
-	nest = mnl_attr_nest_start(nlh, IFLA_LINKINFO);
-	mnl_attr_put_str(nlh, IFLA_INFO_KIND, "gtp");
-	nest2 = mnl_attr_nest_start(nlh, IFLA_INFO_DATA);
-	mnl_attr_put_u32(nlh, IFLA_GTP_FD0, fd1);
-	mnl_attr_put_u32(nlh, IFLA_GTP_FD1, fd2);
-	mnl_attr_put_u32(nlh, IFLA_GTP_PDP_HASHSIZE, 131072);
-	mnl_attr_nest_end(nlh, nest2);
-	mnl_attr_nest_end(nlh, nest);
-
-	nl = mnl_socket_open(NETLINK_ROUTE);
-	if (nl == NULL) {
-		perror("mnl_socket_open");
+	ret = gtp_dev_create(-1, argv[2], fd1, fd2);
+	if (ret < 0) {
+		perror("cannot create GTP device\n");
 		exit(EXIT_FAILURE);
 	}
-
-	if (mnl_socket_bind(nl, 0, MNL_SOCKET_AUTOPID) < 0) {
-		perror("mnl_socket_bind");
-		exit(EXIT_FAILURE);
-	}
-	portid = mnl_socket_get_portid(nl);
-
-	mnl_nlmsg_fprintf(stdout, nlh, nlh->nlmsg_len,
-			  sizeof(struct ifinfomsg));
-
-	if (mnl_socket_sendto(nl, nlh, nlh->nlmsg_len) < 0) {
-		perror("mnl_socket_send");
-		exit(EXIT_FAILURE);
-	}
-
-	ret = mnl_socket_recvfrom(nl, buf, sizeof(buf));
-	if (ret == -1) {
-		perror("read");
-		exit(EXIT_FAILURE);
-	}
-
-	ret = mnl_cb_run(buf, ret, seq, portid, NULL, NULL);
-	if (ret == -1){
-		perror("callback");
-		exit(EXIT_FAILURE);
-	}
-
-	mnl_socket_close(nl);
 
 	fprintf(stderr, "WARNING: attaching dummy socket descriptors. Keep "
 			"this process running for testing purposes.\n");
