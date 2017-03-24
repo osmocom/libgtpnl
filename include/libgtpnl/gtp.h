@@ -2,6 +2,7 @@
 #define _LIBGTP_H_
 
 #include <stdint.h>
+#include <netinet/ip.h>
 
 struct gtp_tunnel;
 
