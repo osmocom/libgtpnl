@@ -48,7 +48,7 @@ static void gtp_build_payload(struct nlmsghdr *nlh, struct gtp_tunnel *t)
 	if (t->ifns >= 0)
 		mnl_attr_put_u32(nlh, GTPA_NET_NS_FD, t->ifns);
 	mnl_attr_put_u32(nlh, GTPA_LINK, t->ifidx);
-	mnl_attr_put_u32(nlh, GTPA_SGSN_ADDRESS, t->sgsn_addr.s_addr);
+	mnl_attr_put_u32(nlh, GTPA_PEER_ADDRESS, t->sgsn_addr.s_addr);
 	mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, t->ms_addr.s_addr);
 	if (t->gtp_version == GTP_V0) {
 		mnl_attr_put_u64(nlh, GTPA_TID, t->u.v0.tid);
@@ -131,7 +131,7 @@ static int genl_gtp_validate_cb(const struct nlattr *attr, void *data)
 		break;
 	case GTPA_O_TEI:
 	case GTPA_I_TEI:
-	case GTPA_SGSN_ADDRESS:
+	case GTPA_PEER_ADDRESS:
 	case GTPA_MS_ADDRESS:
 	case GTPA_VERSION:
 		if (mnl_attr_validate(attr, MNL_TYPE_U32) < 0) {
@@ -160,9 +160,9 @@ static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 		pdp.u.v1.i_tei = mnl_attr_get_u32(tb[GTPA_I_TEI]);
 	if (tb[GTPA_O_TEI])
 		pdp.u.v1.o_tei = mnl_attr_get_u32(tb[GTPA_O_TEI]);
-	if (tb[GTPA_SGSN_ADDRESS]) {
+	if (tb[GTPA_PEER_ADDRESS]) {
 		pdp.sgsn_addr.s_addr =
-			mnl_attr_get_u32(tb[GTPA_SGSN_ADDRESS]);
+			mnl_attr_get_u32(tb[GTPA_PEER_ADDRESS]);
 	}
 	if (tb[GTPA_MS_ADDRESS]) {
 		pdp.ms_addr.s_addr = mnl_attr_get_u32(tb[GTPA_MS_ADDRESS]);
