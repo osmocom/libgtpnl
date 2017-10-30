@@ -1,0 +1,5 @@
+libgtpnl (1.0.1) unstable; urgency=medium
+
+  * Initial release.
+
+ -- Harald Welte <laforge@gnumonks.org>  Mon, 30 Oct 2017 23:03:47 +0100

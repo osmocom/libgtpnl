@@ -21,3 +21,12 @@ build-aux
 
 # Debian package build temporary files
 build-stamp
+debian/*.substvars
+debian/*.debhelper.log
+debian/autoreconf.*
+debian/.debhelper
+debian/files
+debian/tmp
+debian/libgtpnl-dev
+debian/libgtpnl-dbg
+debian/libgtpnl0
