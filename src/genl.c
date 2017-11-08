@@ -106,6 +106,12 @@ struct mnl_socket *genl_socket_open(void)
 }
 EXPORT_SYMBOL(genl_socket_open);
 
+void genl_socket_close(struct mnl_socket *nl)
+{
+	mnl_socket_close(nl);
+}
+EXPORT_SYMBOL(genl_socket_close);
+
 int genl_socket_talk(struct mnl_socket *nl, struct nlmsghdr *nlh, uint32_t seq,
 		     int (*cb)(const struct nlmsghdr *nlh, void *data),
 		     void *data)

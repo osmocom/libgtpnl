@@ -7,6 +7,7 @@ struct mnl_socket;
 struct nlmsghdr;
 
 struct mnl_socket *genl_socket_open(void);
+void genl_socket_close(struct mnl_socket *nl);
 struct nlmsghdr *genl_nlmsg_build_hdr(char *buf, uint16_t type, uint16_t flags,
 				      uint32_t seq, uint8_t cmd);
 int genl_socket_talk(struct mnl_socket *nl, struct nlmsghdr *nlh, uint32_t seq,
