@@ -1,3 +1,14 @@
+libgtpnl (1.1.0) UNRELEASED; urgency=medium
+
+  * Add genl_socket_close() function
+  * Add contrib/jenkins.sh for jenkins build verification
+  * Add '--enable-sanitize' from other osmocom projects
+  * gtp_build_payload(): Support absent peer and SGSN address
+  * Use release helper from libosmocore
+  * add 'm4' subdirectory to .gitignore
+
+ -- Harald Welte <laforge@gnumonks.org>  Sun, 12 Nov 2017 23:31:27 +0900
+
 libgtpnl (1.0.1) unstable; urgency=medium
 
   * Initial release.
