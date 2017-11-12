@@ -18,6 +18,7 @@ aclocal.m4
 libgtpnl.pc
 libtool
 build-aux
+m4
 
 # Debian package build temporary files
 build-stamp
