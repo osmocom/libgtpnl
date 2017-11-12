@@ -48,8 +48,10 @@ static void gtp_build_payload(struct nlmsghdr *nlh, struct gtp_tunnel *t)
 	if (t->ifns >= 0)
 		mnl_attr_put_u32(nlh, GTPA_NET_NS_FD, t->ifns);
 	mnl_attr_put_u32(nlh, GTPA_LINK, t->ifidx);
-	mnl_attr_put_u32(nlh, GTPA_PEER_ADDRESS, t->sgsn_addr.s_addr);
-	mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, t->ms_addr.s_addr);
+	if (t->sgsn_addr.s_addr)
+		mnl_attr_put_u32(nlh, GTPA_PEER_ADDRESS, t->sgsn_addr.s_addr);
+	if (t->ms_addr.s_addr)
+		mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, t->ms_addr.s_addr);
 	if (t->gtp_version == GTP_V0) {
 		mnl_attr_put_u64(nlh, GTPA_TID, t->u.v0.tid);
 		mnl_attr_put_u16(nlh, GTPA_FLOW, t->u.v0.flowid);
