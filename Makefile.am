@@ -9,3 +9,5 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libgtpnl.pc
 
 ${pkgconfig_DATA}: ${top_builddir}/config.status
+
+@RELMAKE@

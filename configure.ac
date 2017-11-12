@@ -13,6 +13,10 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 dnl Dependencies
 PKG_CHECK_MODULES([LIBMNL], [libmnl >= 1.0.0])
 
+dnl include release helper
+RELMAKE='-include osmo-release.mk'
+AC_SUBST([RELMAKE])
+
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_EXEEXT
