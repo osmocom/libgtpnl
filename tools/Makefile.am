@@ -1,7 +1,7 @@
 include $(top_srcdir)/Make_global.am
 
-check_PROGRAMS = gtp-link		\
-		 gtp-tunnel
+noinst_PROGRAMS = gtp-link		\
+		  gtp-tunnel
 
 gtp_link_SOURCES = gtp-link.c
 gtp_link_LDADD = ../src/libgtpnl.la ${LIBMNL_LIBS}
