@@ -1,6 +1,8 @@
 dnl Process this file with autoconf to create configure.
 
-AC_INIT([libgtpnl], [1.1.0])
+AC_INIT([libgtpnl],
+	m4_esyscmd([./git-version-gen .tarball-version]),
+	[osmocom-net-gprs@lists.osmocom.org])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CANONICAL_HOST
 AC_CONFIG_MACRO_DIR([m4])
