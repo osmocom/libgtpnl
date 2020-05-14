@@ -53,4 +53,5 @@ regular_CFLAGS="-Wall -Waggregate-return -Wmissing-declarations \
 AC_SUBST([regular_CPPFLAGS])
 AC_SUBST([regular_CFLAGS])
 AC_CONFIG_FILES([Makefile src/Makefile include/Makefile include/libgtpnl/Makefile include/linux/Makefile tools/Makefile libgtpnl.pc])
-AC_OUTPUT
+AC_OUTPUT(
+	contrib/libgtpnl.spec)
