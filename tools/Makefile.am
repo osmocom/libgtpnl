@@ -1,6 +1,6 @@
 include $(top_srcdir)/Make_global.am
 
-noinst_PROGRAMS = gtp-link		\
+bin_PROGRAMS = gtp-link		\
 		  gtp-tunnel
 
 gtp_link_SOURCES = gtp-link.c

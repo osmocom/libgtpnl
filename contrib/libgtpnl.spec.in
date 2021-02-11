@@ -51,6 +51,18 @@ Linux kernel into a C API.
 This subpackage contains libraries and header files for developing
 applications that want to make use of libgtpnl.
 
+%package tools
+Summary:        Libgtpnl user tools
+License:        GPL-2.0-or-later AND LGPL-2.1-or-later
+Group:          Applications/System
+Requires:       libgtpnl0 = %{version}
+
+%description tools
+libgtpnl wraps the genetlink-based GPRS tunnel configuration of the
+Linux kernel into a C API.
+
+This subpackage contains sample tools to manage gtp interfaces and tunnels.
+
 %prep
 %setup -q
 
@@ -78,5 +90,9 @@ make %{?_smp_mflags} check || (find . -name testsuite.log -exec cat {} +)
 %{_includedir}/libgtpnl/
 %{_libdir}/libgtpnl.so
 %{_libdir}/pkgconfig/*.pc
+
+%files tools
+%{_bindir}/gtp-link
+%{_bindir}/gtp-tunnel
 
 %changelog
