@@ -1,3 +1,19 @@
+libgtpnl (1.2.2) unstable; urgency=medium
+
+  [ Oliver Smith ]
+  * contrib: import RPM spec
+  * contrib: integrate RPM spec
+  * configure.ac: set -std=gnu11
+
+  [ Pau Espin Pedrol ]
+  * Enable parallel make in make distcheck
+  * .gitignore: Ignore new autofoo tmp files
+
+  [ Gabriel Ganne ]
+  * install gtp-tunnel and gtp-link tools
+
+ -- Pau Espin Pedrol <pespin@espeweb.net>  Tue, 23 Feb 2021 12:52:08 +0100
+
 libgtpnl (1.2.1) unstable; urgency=medium
 
   [ Pau Espin Pedrol ]
