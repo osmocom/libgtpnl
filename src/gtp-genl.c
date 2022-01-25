@@ -77,8 +77,10 @@ int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 				   GTP_CMD_NEWPDP);
 	gtp_build_payload(nlh, t);
 
-	if (genl_socket_talk(nl, nlh, seq, NULL, NULL) < 0)
+	if (genl_socket_talk(nl, nlh, seq, NULL, NULL) < 0) {
 		perror("genl_socket_talk");
+		return -1;
+	}
 
 	return 0;
 }
@@ -94,8 +96,10 @@ int gtp_del_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 				   GTP_CMD_DELPDP);
 	gtp_build_payload(nlh, t);
 
-	if (genl_socket_talk(nl, nlh, seq, NULL, NULL) < 0)
+	if (genl_socket_talk(nl, nlh, seq, NULL, NULL) < 0) {
 		perror("genl_socket_talk");
+		return -1;
+	}
 
 	return 0;
 }
@@ -200,7 +204,7 @@ int gtp_list_tunnel(int genl_id, struct mnl_socket *nl)
 
 	if (genl_socket_talk(nl, nlh, seq, genl_gtp_attr_cb, NULL) < 0) {
 		perror("genl_socket_talk");
-		return 0;
+		return -1;
 	}
 
 	return 0;
