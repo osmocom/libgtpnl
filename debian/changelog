@@ -1,3 +1,10 @@
+libgtpnl (1.2.3) unstable; urgency=medium
+
+  [ Neels Hofmeyr ]
+  * fix some cases of rc == 0 on error
+
+ -- Pau Espin Pedrol <pespin@sysmocom.de>  Tue, 28 Jun 2022 16:13:45 +0200
+
 libgtpnl (1.2.2) unstable; urgency=medium
 
   [ Oliver Smith ]
