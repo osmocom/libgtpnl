@@ -13,7 +13,7 @@ Mobile Communications project.
 ## Homepage
 
 The official homepage of the project is
-<https://osmocom.org/projects/libgtpnl/wiki/>
+<https://osmocom.org/projects/linux-kernel-gtp-u/wiki/Libgtpnl>
 
 GIT Repository
 --------------
