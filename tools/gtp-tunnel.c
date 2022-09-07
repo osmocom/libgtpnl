@@ -120,7 +120,7 @@ del_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 	uint32_t gtp_ifidx;
 
 	if (argc != 5) {
-		printf("%s add <gtp device> <version> <tid>\n",
+		printf("%s del <gtp device> <version> <tid>\n",
 			argv[0]);
 		return EXIT_FAILURE;
 	}
