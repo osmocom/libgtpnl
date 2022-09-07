@@ -46,7 +46,8 @@ int main(int argc, char *argv[])
 	int ret, sgsn_mode = 0;
 
 	if (argc < 3) {
-		printf("Usage: %s <add|del> <device>\n", argv[0]);
+		printf("Usage: %s add <device> [--sgsn]\n", argv[0]);
+		printf("       %s del <device>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
