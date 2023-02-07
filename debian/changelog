@@ -1,3 +1,12 @@
+libgtpnl (1.2.4) unstable; urgency=medium
+
+  [ Oliver Smith ]
+  * README: fix link to homepage
+  * tools/gtp-tunnel: fix del usage
+  * tools/gtp-link: add --sgsn to usage
+
+ -- Pau Espin Pedrol <pespin@sysmocom.de>  Tue, 07 Feb 2023 14:07:11 +0100
+
 libgtpnl (1.2.3) unstable; urgency=medium
 
   [ Neels Hofmeyr ]
