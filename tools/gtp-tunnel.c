@@ -130,6 +130,7 @@ del_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 	gtp_ifidx = if_nametoindex(argv[2]);
 	if (gtp_ifidx == 0) {
 		fprintf(stderr, "wrong GTP interface %s\n", argv[2]);
+		gtp_tunnel_free(t);
 		return EXIT_FAILURE;
 	}
 	gtp_tunnel_set_ifidx(t, gtp_ifidx);
@@ -143,6 +144,7 @@ del_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 	} else {
 		fprintf(stderr, "wrong GTP version %s, use v0 or v1\n",
 			argv[3]);
+		gtp_tunnel_free(t);
 		return EXIT_FAILURE;
 	}
 
