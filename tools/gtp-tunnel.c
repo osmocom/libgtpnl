@@ -43,22 +43,29 @@
 
 static void add_usage(const char *name)
 {
-	printf("%s add <gtp device> <v0> <tid> <ms-addr> <sgsn-addr>\n",
+	printf("%s add <gtp device> <v0> <tid> <family> <ms-addr> <sgsn-addr>\n",
 	       name);
-	printf("%s add <gtp device> <v1> <i_tei> <o_tei> <ms-addr> <sgsn-addr>\n",
+	printf("%s add <gtp device> <v1> <i_tei> <o_tei> <family> <ms-addr> <sgsn-addr>\n",
 	       name);
 }
 
 static int
 add_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 {
+	union {
+		struct in_addr addr;
+		struct in6_addr addr6;
+	} ms;
+	union {
+		struct in_addr addr;
+		struct in6_addr addr6;
+	} sgsn;
 	struct gtp_tunnel *t;
-	uint32_t gtp_ifidx;
-	struct in_addr ms, sgsn;
 	uint32_t gtp_version;
-	int optidx;
+	uint32_t gtp_ifidx;
+	int optidx, family;
 
-	if (argc < 7 || argc > 8) {
+	if (argc < 8 || argc > 9) {
 		add_usage(argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -95,17 +102,46 @@ add_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 		gtp_tunnel_set_o_tei(t, atoi(argv[optidx++]));
 	}
 
-	if (inet_aton(argv[optidx++], &ms) < 0) {
-		perror("bad address for ms");
-		exit(EXIT_FAILURE);
+	if (!strcmp(argv[optidx], "ip")) {
+		family = AF_INET;
+	} else if (!strcmp(argv[optidx], "ip6")) {
+		family = AF_INET6;
+	} else {
+		fprintf(stderr, "wrong family `%s', expecting `ip' or `ip6'\n", argv[optidx]);
+		return EXIT_FAILURE;
 	}
-	gtp_tunnel_set_ms_ip4(t, &ms);
 
-	if (inet_aton(argv[optidx++], &sgsn) < 0) {
-		perror("bad address for sgsn");
+	gtp_tunnel_set_family(t, family);
+
+	optidx++;
+
+	if (inet_pton(family, argv[optidx++], &ms) <= 0) {
+		fprintf(stderr, "bad address for ms\n");
 		exit(EXIT_FAILURE);
 	}
-	gtp_tunnel_set_sgsn_ip4(t, &sgsn);
+
+	switch (family) {
+	case AF_INET:
+		gtp_tunnel_set_ms_ip4(t, &ms.addr);
+		break;
+	case AF_INET6:
+		gtp_tunnel_set_ms_ip6(t, &ms.addr6);
+		break;
+	}
+
+	if (inet_pton(family, argv[optidx++], &sgsn) <= 0) {
+		fprintf(stderr, "bad address for sgsn\n");
+		exit(EXIT_FAILURE);
+	}
+
+	switch (family) {
+	case AF_INET:
+		gtp_tunnel_set_sgsn_ip4(t, &sgsn.addr);
+		break;
+	case AF_INET6:
+		gtp_tunnel_set_sgsn_ip6(t, &sgsn.addr6);
+		break;
+	}
 
 	gtp_add_tunnel(genl_id, nl, t);
 
