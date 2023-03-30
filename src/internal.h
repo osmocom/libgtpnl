@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 
 struct gtp_tunnel {
+	uint8_t		family;
 	int             ifns;
 	uint32_t	ifidx;
 	union {
@@ -20,6 +21,10 @@ struct gtp_tunnel {
 			struct in_addr	ms_addr;
 			struct in_addr	sgsn_addr;
 		} ip;
+		struct {
+			struct in6_addr	ms_addr;
+			struct in6_addr	sgsn_addr;
+		} ip6;
 	};
 	int		gtp_version;
 	union {
