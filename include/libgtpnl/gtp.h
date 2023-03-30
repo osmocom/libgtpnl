@@ -9,10 +9,13 @@ struct gtp_tunnel;
 struct gtp_tunnel *gtp_tunnel_alloc(void);
 void gtp_tunnel_free(struct gtp_tunnel *t);
 
+void gtp_tunnel_set_family(struct gtp_tunnel *t, uint8_t family);
 void gtp_tunnel_set_ifns(struct gtp_tunnel *t, int ifns);
 void gtp_tunnel_set_ifidx(struct gtp_tunnel *t, uint32_t ifidx);
 void gtp_tunnel_set_ms_ip4(struct gtp_tunnel *t, struct in_addr *ms_addr);
 void gtp_tunnel_set_sgsn_ip4(struct gtp_tunnel *t, struct in_addr *sgsn_addr);
+void gtp_tunnel_set_ms_ip6(struct gtp_tunnel *t, const struct in6_addr *ms_addr);
+void gtp_tunnel_set_sgsn_ip6(struct gtp_tunnel *t, const struct in6_addr *sgsn_addr);
 void gtp_tunnel_set_version(struct gtp_tunnel *t, uint32_t version);
 void gtp_tunnel_set_tid(struct gtp_tunnel *t, uint64_t tid);
 void gtp_tunnel_set_i_tei(struct gtp_tunnel *t, uint32_t i_tei);

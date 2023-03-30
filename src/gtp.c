@@ -46,6 +46,12 @@ void gtp_tunnel_free(struct gtp_tunnel *t)
 }
 EXPORT_SYMBOL(gtp_tunnel_free);
 
+void gtp_tunnel_set_family(struct gtp_tunnel *t, uint8_t family)
+{
+	t->family = family;
+}
+EXPORT_SYMBOL(gtp_tunnel_set_family);
+
 void gtp_tunnel_set_ifns(struct gtp_tunnel *t, int ifns)
 {
 	t->ifns = ifns;
@@ -69,6 +75,18 @@ void gtp_tunnel_set_sgsn_ip4(struct gtp_tunnel *t, struct in_addr *sgsn_addr)
 	t->ip.sgsn_addr = *sgsn_addr;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_sgsn_ip4);
+
+void gtp_tunnel_set_ms_ip6(struct gtp_tunnel *t, const struct in6_addr *ms_addr)
+{
+	t->ip6.ms_addr = *ms_addr;
+}
+EXPORT_SYMBOL(gtp_tunnel_set_ms_ip6);
+
+void gtp_tunnel_set_sgsn_ip6(struct gtp_tunnel *t, const struct in6_addr *sgsn_addr)
+{
+	t->ip6.sgsn_addr = *sgsn_addr;
+}
+EXPORT_SYMBOL(gtp_tunnel_set_sgsn_ip6);
 
 void gtp_tunnel_set_version(struct gtp_tunnel *t, uint32_t version)
 {

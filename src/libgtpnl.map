@@ -38,3 +38,9 @@ global:
 
 local: *;
 };
+
+LIBGTPNL_1.1 {
+  gtp_tunnel_set_family;
+  gtp_tunnel_set_ms_ip6;
+  gtp_tunnel_set_sgsn_ip6;
+} LIBGTPNL_1.0;
