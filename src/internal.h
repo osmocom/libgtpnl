@@ -15,8 +15,12 @@
 struct gtp_tunnel {
 	int             ifns;
 	uint32_t	ifidx;
-	struct in_addr	ms_addr;
-	struct in_addr	sgsn_addr;
+	union {
+		struct {
+			struct in_addr	ms_addr;
+			struct in_addr	sgsn_addr;
+		} ip;
+	};
 	int		gtp_version;
 	union {
 		struct {

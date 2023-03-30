@@ -48,10 +48,10 @@ static void gtp_build_payload(struct nlmsghdr *nlh, struct gtp_tunnel *t)
 	if (t->ifns >= 0)
 		mnl_attr_put_u32(nlh, GTPA_NET_NS_FD, t->ifns);
 	mnl_attr_put_u32(nlh, GTPA_LINK, t->ifidx);
-	if (t->sgsn_addr.s_addr)
-		mnl_attr_put_u32(nlh, GTPA_PEER_ADDRESS, t->sgsn_addr.s_addr);
-	if (t->ms_addr.s_addr)
-		mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, t->ms_addr.s_addr);
+	if (t->ip.sgsn_addr.s_addr)
+		mnl_attr_put_u32(nlh, GTPA_PEER_ADDRESS, t->ip.sgsn_addr.s_addr);
+	if (t->ip.ms_addr.s_addr)
+		mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, t->ip.ms_addr.s_addr);
 	if (t->gtp_version == GTP_V0) {
 		mnl_attr_put_u64(nlh, GTPA_TID, t->u.v0.tid);
 		mnl_attr_put_u16(nlh, GTPA_FLOW, t->u.v0.flowid);
@@ -116,8 +116,12 @@ struct gtp_pdp {
 			uint32_t o_tei;
 		} v1;
 	} u;
-	struct in_addr	sgsn_addr;
-	struct in_addr	ms_addr;
+	union {
+		struct {
+			struct in_addr	sgsn_addr;
+			struct in_addr	ms_addr;
+		} ip;
+	};
 };
 
 static int genl_gtp_validate_cb(const struct nlattr *attr, void *data)
@@ -167,11 +171,11 @@ static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 	if (tb[GTPA_O_TEI])
 		pdp.u.v1.o_tei = mnl_attr_get_u32(tb[GTPA_O_TEI]);
 	if (tb[GTPA_PEER_ADDRESS]) {
-		pdp.sgsn_addr.s_addr =
+		pdp.ip.sgsn_addr.s_addr =
 			mnl_attr_get_u32(tb[GTPA_PEER_ADDRESS]);
 	}
 	if (tb[GTPA_MS_ADDRESS]) {
-		pdp.ms_addr.s_addr = mnl_attr_get_u32(tb[GTPA_MS_ADDRESS]);
+		pdp.ip.ms_addr.s_addr = mnl_attr_get_u32(tb[GTPA_MS_ADDRESS]);
 	}
 	if (tb[GTPA_VERSION]) {
 		pdp.version = mnl_attr_get_u32(tb[GTPA_VERSION]);
@@ -179,15 +183,15 @@ static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 
 	printf("version %u ", pdp.version);
 	if (pdp.version == GTP_V0) {
-		inet_ntop(AF_INET, &pdp.ms_addr, buf, sizeof(buf));
+		inet_ntop(AF_INET, &pdp.ip.ms_addr, buf, sizeof(buf));
 		printf("tid %"PRIu64" ms_addr %s ",
 		       pdp.u.v0.tid, buf);
 	} else if (pdp.version == GTP_V1) {
-		inet_ntop(AF_INET, &pdp.ms_addr, buf, sizeof(buf));
+		inet_ntop(AF_INET, &pdp.ip.ms_addr, buf, sizeof(buf));
 		printf("tei %u/%u ms_addr %s ", pdp.u.v1.i_tei,
 		       pdp.u.v1.o_tei, buf);
 	}
-	inet_ntop(AF_INET, &pdp.sgsn_addr, buf, sizeof(buf));
+	inet_ntop(AF_INET, &pdp.ip.sgsn_addr, buf, sizeof(buf));
 	printf("sgsn_addr %s\n", buf);
 
 	return MNL_CB_OK;

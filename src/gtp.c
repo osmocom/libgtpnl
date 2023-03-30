@@ -60,13 +60,13 @@ EXPORT_SYMBOL(gtp_tunnel_set_ifidx);
 
 void gtp_tunnel_set_ms_ip4(struct gtp_tunnel *t, struct in_addr *ms_addr)
 {
-	t->ms_addr = *ms_addr;
+	t->ip.ms_addr = *ms_addr;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_ms_ip4);
 
 void gtp_tunnel_set_sgsn_ip4(struct gtp_tunnel *t, struct in_addr *sgsn_addr)
 {
-	t->sgsn_addr = *sgsn_addr;
+	t->ip.sgsn_addr = *sgsn_addr;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_sgsn_ip4);
 
@@ -114,13 +114,13 @@ EXPORT_SYMBOL(gtp_tunnel_get_ifidx);
 
 const struct in_addr *gtp_tunnel_get_ms_ip4(struct gtp_tunnel *t)
 {
-	return &t->ms_addr;
+	return &t->ip.ms_addr;
 }
 EXPORT_SYMBOL(gtp_tunnel_get_ms_ip4);
 
 const struct in_addr *gtp_tunnel_get_sgsn_ip4(struct gtp_tunnel *t)
 {
-	return &t->sgsn_addr;
+	return &t->ip.sgsn_addr;
 }
 EXPORT_SYMBOL(gtp_tunnel_get_sgsn_ip4);
 
