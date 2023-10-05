@@ -155,7 +155,7 @@ static int genl_gtp_validate_cb(const struct nlattr *attr, void *data)
 static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 {
 	struct nlattr *tb[GTPA_MAX + 1] = {};
-	char buf[INET_ADDRSTRLEN];
+	char buf[INET6_ADDRSTRLEN];
 	struct gtp_pdp pdp = {};
 	struct genlmsghdr *genl;
 
