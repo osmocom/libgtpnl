@@ -12,11 +12,19 @@
 #include <stdint.h>
 #include <netinet/in.h>
 
+struct gtp_addr {
+	sa_family_t family;
+	union {
+		struct in_addr ip4;
+		struct in6_addr ip6;
+	};
+};
+
 struct gtp_tunnel {
 	int             ifns;
 	uint32_t	ifidx;
-	struct in_addr	ms_addr;
-	struct in_addr	sgsn_addr;
+	struct gtp_addr ms_addr;
+	struct gtp_addr sgsn_addr;
 	int		gtp_version;
 	union {
 		struct {
