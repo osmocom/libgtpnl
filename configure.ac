@@ -9,6 +9,11 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign tar-pax no-dist-gzip dist-bzip2 1.6 subdir-objects])
 
+CPPFLAGS="$CPPFLAGS -D_FILE_OFFSET_BITS=64 -D_REENTRANT"
+CFLAGS="$CFLAGS -Wall -Waggregate-return -Wmissing-declarations \
+	-Wmissing-prototypes -Wshadow -Wstrict-prototypes \
+	-Wformat=2 -pipe"
+
 dnl include release helper
 RELMAKE='-include osmo-release.mk'
 AC_SUBST([RELMAKE])
@@ -48,12 +53,8 @@ then
 	CPPFLAGS="$CPPFLAGS -fsanitize=address -fsanitize=undefined"
 fi
 
-regular_CPPFLAGS="-D_FILE_OFFSET_BITS=64 -D_REENTRANT"
-regular_CFLAGS="-Wall -Waggregate-return -Wmissing-declarations \
-	-Wmissing-prototypes -Wshadow -Wstrict-prototypes \
-	-Wformat=2 -pipe"
-AC_SUBST([regular_CPPFLAGS])
-AC_SUBST([regular_CFLAGS])
+AC_SUBST([CPPFLAGS])
+AC_SUBST([CFLAGS])
 AC_CONFIG_FILES([Makefile src/Makefile include/Makefile include/libgtpnl/Makefile include/linux/Makefile tools/Makefile libgtpnl.pc])
 AC_OUTPUT(
 	contrib/libgtpnl.spec)
