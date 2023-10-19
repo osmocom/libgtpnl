@@ -20,9 +20,9 @@ GIT Repository
 
 You can clone from the official libgtpnl.git repository using
 
-	git clone git://git.osmocom.org/libgtpnl.git
+	git clone https://gitea.osmocom.org/cellular-infrastructure/libgtpnl
 
-There is a cgit interface at <http://git.osmocom.org/libgtpnl/>
+Visiting the URL in a browser shows a web interface.
 
 Mailing List
 ------------
