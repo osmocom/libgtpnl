@@ -44,14 +44,36 @@
 
 static void gtp_build_payload(struct nlmsghdr *nlh, struct gtp_tunnel *t)
 {
+	mnl_attr_put_u8(nlh, GTPA_FAMILY, t->ms_addr.family);
 	mnl_attr_put_u32(nlh, GTPA_VERSION, t->gtp_version);
 	if (t->ifns >= 0)
 		mnl_attr_put_u32(nlh, GTPA_NET_NS_FD, t->ifns);
 	mnl_attr_put_u32(nlh, GTPA_LINK, t->ifidx);
-	if (t->sgsn_addr.ip4.s_addr)
-		mnl_attr_put_u32(nlh, GTPA_PEER_ADDRESS, t->sgsn_addr.ip4.s_addr);
-	if (t->ms_addr.ip4.s_addr)
+
+	switch (t->ms_addr.family) {
+	case AF_INET:
 		mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, t->ms_addr.ip4.s_addr);
+		break;
+	case AF_INET6:
+		mnl_attr_put(nlh, GTPA_MS_ADDR6, sizeof(t->ms_addr.ip6), &t->ms_addr.ip6);
+		break;
+	default:
+		/* No addr is set when deleting a tunnel */
+		break;
+	}
+
+	switch (t->sgsn_addr.family) {
+	case AF_INET:
+		mnl_attr_put_u32(nlh, GTPA_PEER_ADDRESS, t->sgsn_addr.ip4.s_addr);
+		break;
+	case AF_INET6:
+		mnl_attr_put(nlh, GTPA_PEER_ADDR6, sizeof(t->sgsn_addr.ip6), &t->sgsn_addr.ip6);
+		break;
+	default:
+		/* No addr is set when deleting a tunnel */
+		break;
+	}
+
 	if (t->gtp_version == GTP_V0) {
 		mnl_attr_put_u64(nlh, GTPA_TID, t->u.v0.tid);
 		mnl_attr_put_u16(nlh, GTPA_FLOW, t->u.v0.flowid);
@@ -129,6 +151,12 @@ static int genl_gtp_validate_cb(const struct nlattr *attr, void *data)
 		return MNL_CB_OK;
 
 	switch(type) {
+	case GTPA_FAMILY:
+		if (mnl_attr_validate(attr, MNL_TYPE_U8) < 0) {
+			perror("mnl_attr_validate");
+			return MNL_CB_ERROR;
+		}
+		break;
 	case GTPA_TID:
 		if (mnl_attr_validate(attr, MNL_TYPE_U64) < 0) {
 			perror("mnl_attr_validate");
@@ -141,6 +169,14 @@ static int genl_gtp_validate_cb(const struct nlattr *attr, void *data)
 	case GTPA_MS_ADDRESS:
 	case GTPA_VERSION:
 		if (mnl_attr_validate(attr, MNL_TYPE_U32) < 0) {
+			perror("mnl_attr_validate");
+			return MNL_CB_ERROR;
+		}
+		break;
+	case GTPA_PEER_ADDR6:
+	case GTPA_MS_ADDR6:
+		if (mnl_attr_validate2(attr, MNL_TYPE_BINARY,
+				       sizeof(struct in6_addr)) < 0) {
 			perror("mnl_attr_validate");
 			return MNL_CB_ERROR;
 		}
@@ -160,36 +196,56 @@ static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 	struct genlmsghdr *genl;
 
 	mnl_attr_parse(nlh, sizeof(*genl), genl_gtp_validate_cb, tb);
+
 	if (tb[GTPA_TID])
 		pdp.u.v0.tid = mnl_attr_get_u64(tb[GTPA_TID]);
 	if (tb[GTPA_I_TEI])
 		pdp.u.v1.i_tei = mnl_attr_get_u32(tb[GTPA_I_TEI]);
 	if (tb[GTPA_O_TEI])
 		pdp.u.v1.o_tei = mnl_attr_get_u32(tb[GTPA_O_TEI]);
+
 	if (tb[GTPA_PEER_ADDRESS]) {
 		pdp.sgsn_addr.family = AF_INET;
-		pdp.sgsn_addr.ip4.s_addr =
-			mnl_attr_get_u32(tb[GTPA_PEER_ADDRESS]);
+		pdp.sgsn_addr.ip4.s_addr = mnl_attr_get_u32(tb[GTPA_PEER_ADDRESS]);
+	} else if (tb[GTPA_PEER_ADDR6]) {
+		pdp.sgsn_addr.family = AF_INET6;
+		memcpy(&pdp.sgsn_addr.ip6, mnl_attr_get_payload(tb[GTPA_PEER_ADDR6]),
+		       sizeof(struct in6_addr));
+	} else {
+		fprintf(stderr, "sgsn_addr: no IPv4 nor IPv6 set\n");
+		return MNL_CB_ERROR;
 	}
+
 	if (tb[GTPA_MS_ADDRESS]) {
 		pdp.ms_addr.family = AF_INET;
 		pdp.ms_addr.ip4.s_addr = mnl_attr_get_u32(tb[GTPA_MS_ADDRESS]);
-	}
-	if (tb[GTPA_VERSION]) {
-		pdp.version = mnl_attr_get_u32(tb[GTPA_VERSION]);
+	} else if (tb[GTPA_MS_ADDR6]) {
+		pdp.ms_addr.family = AF_INET6;
+		memcpy(&pdp.ms_addr.ip6, mnl_attr_get_payload(tb[GTPA_MS_ADDR6]), sizeof(struct in6_addr));
+	} else {
+		fprintf(stderr, "ms_addr: no IPv4 nor IPv6 set\n");
+		return MNL_CB_ERROR;
 	}
 
-	printf("version %u ", pdp.version);
-	if (pdp.version == GTP_V0) {
-		inet_ntop(AF_INET, &pdp.ms_addr.ip4, buf, sizeof(buf));
-		printf("tid %"PRIu64" ms_addr %s ",
-		       pdp.u.v0.tid, buf);
-	} else if (pdp.version == GTP_V1) {
-		inet_ntop(AF_INET, &pdp.ms_addr.ip4, buf, sizeof(buf));
-		printf("tei %u/%u ms_addr %s ", pdp.u.v1.i_tei,
-		       pdp.u.v1.o_tei, buf);
+	if (tb[GTPA_FAMILY] && mnl_attr_get_u32(tb[GTPA_FAMILY]) != pdp.ms_addr.family) {
+		fprintf(stderr, "ms_addr family does not match GTPA_FAMILY\n");
+		return MNL_CB_ERROR;
 	}
-	inet_ntop(AF_INET, &pdp.sgsn_addr.ip4, buf, sizeof(buf));
+
+	if (tb[GTPA_VERSION])
+		pdp.version = mnl_attr_get_u32(tb[GTPA_VERSION]);
+
+	printf("version %u ", pdp.version);
+
+	if (pdp.version == GTP_V0)
+		printf("tid %"PRIu64" ", pdp.u.v0.tid);
+	else if (pdp.version == GTP_V1)
+		printf("tei %u/%u ", pdp.u.v1.i_tei, pdp.u.v1.o_tei);
+
+	inet_ntop(pdp.ms_addr.family, &pdp.ms_addr.ip4, buf, sizeof(buf));
+	printf("ms_addr %s ", buf);
+
+	inet_ntop(pdp.sgsn_addr.family, &pdp.sgsn_addr.ip4, buf, sizeof(buf));
 	printf("sgsn_addr %s\n", buf);
 
 	return MNL_CB_OK;

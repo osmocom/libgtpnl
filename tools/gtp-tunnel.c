@@ -49,12 +49,32 @@ static void add_usage(const char *name)
 	       name);
 }
 
+static void set_addr(const char *addr, bool is_ms, struct gtp_tunnel *t)
+{
+	struct in_addr ip4;
+	struct in6_addr ip6;
+
+	if (inet_pton(AF_INET, addr, &ip4) == 1) {
+		if (is_ms)
+			return gtp_tunnel_set_ms_ip4(t, &ip4);
+		return gtp_tunnel_set_sgsn_ip4(t, &ip4);
+	}
+
+	if (inet_pton(AF_INET6, addr, &ip6) == 1) {
+		if (is_ms)
+			return gtp_tunnel_set_ms_ip6(t, &ip6);
+		return gtp_tunnel_set_sgsn_ip6(t, &ip6);
+	}
+
+	fprintf(stderr, "bad address: %s\n", addr);
+	exit(EXIT_FAILURE);
+}
+
 static int
 add_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 {
 	struct gtp_tunnel *t;
 	uint32_t gtp_ifidx;
-	struct in_addr ms, sgsn;
 	uint32_t gtp_version;
 	int optidx;
 
@@ -95,17 +115,8 @@ add_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 		gtp_tunnel_set_o_tei(t, atoi(argv[optidx++]));
 	}
 
-	if (inet_aton(argv[optidx++], &ms) < 0) {
-		perror("bad address for ms");
-		exit(EXIT_FAILURE);
-	}
-	gtp_tunnel_set_ms_ip4(t, &ms);
-
-	if (inet_aton(argv[optidx++], &sgsn) < 0) {
-		perror("bad address for sgsn");
-		exit(EXIT_FAILURE);
-	}
-	gtp_tunnel_set_sgsn_ip4(t, &sgsn);
+	set_addr(argv[optidx++], true, t);
+	set_addr(argv[optidx++], false, t);
 
 	gtp_add_tunnel(genl_id, nl, t);
 

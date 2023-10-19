@@ -72,6 +72,20 @@ void gtp_tunnel_set_sgsn_ip4(struct gtp_tunnel *t, struct in_addr *sgsn_addr)
 }
 EXPORT_SYMBOL(gtp_tunnel_set_sgsn_ip4);
 
+void gtp_tunnel_set_ms_ip6(struct gtp_tunnel *t, const struct in6_addr *ms_addr)
+{
+	t->ms_addr.family = AF_INET6;
+	t->ms_addr.ip6 = *ms_addr;
+}
+EXPORT_SYMBOL(gtp_tunnel_set_ms_ip6);
+
+void gtp_tunnel_set_sgsn_ip6(struct gtp_tunnel *t, const struct in6_addr *sgsn_addr)
+{
+	t->sgsn_addr.family = AF_INET6;
+	t->sgsn_addr.ip6 = *sgsn_addr;
+}
+EXPORT_SYMBOL(gtp_tunnel_set_sgsn_ip6);
+
 void gtp_tunnel_set_version(struct gtp_tunnel *t, uint32_t version)
 {
 	t->gtp_version = version;
