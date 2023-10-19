@@ -34,3 +34,6 @@ debian/libgtpnl-dbg
 debian/libgtpnl0
 
 contrib/libgtpnl.spec
+
+tools/gtp-link
+tools/gtp-tunnel
