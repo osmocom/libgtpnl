@@ -37,3 +37,5 @@ contrib/libgtpnl.spec
 
 tools/gtp-link
 tools/gtp-tunnel
+
+tests/qemu/_*
