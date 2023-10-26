@@ -74,6 +74,14 @@ fi
 
 AC_SUBST([CPPFLAGS])
 AC_SUBST([CFLAGS])
-AC_CONFIG_FILES([Makefile src/Makefile include/Makefile include/libgtpnl/Makefile include/linux/Makefile tools/Makefile libgtpnl.pc])
-AC_OUTPUT(
-	contrib/libgtpnl.spec)
+AC_CONFIG_FILES([
+	Makefile
+	contrib/libgtpnl.spec
+	include/Makefile
+	include/libgtpnl/Makefile
+	include/linux/Makefile
+	libgtpnl.pc
+	src/Makefile
+	tools/Makefile
+])
+AC_OUTPUT()
