@@ -4,7 +4,12 @@ include $(top_srcdir)/Make_global.am
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src include tools
+SUBDIRS = \
+	  include \
+	  src \
+	  tests \
+	  tools \
+	  $(NULL)
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libgtpnl.pc

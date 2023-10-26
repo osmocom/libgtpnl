@@ -72,6 +72,19 @@ then
 	CPPFLAGS="$CPPFLAGS $WERROR_FLAGS"
 fi
 
+AC_ARG_ENABLE(qemu_tests,
+	[AS_HELP_STRING(
+		[--enable-qemu-tests],
+		[Run automated tests in QEMU]
+	)],
+	[qemu_tests=$enableval], [qemu_tests="no"])
+AC_MSG_CHECKING([whether to enable QEMU tests])
+AC_MSG_RESULT([$qemu_tests])
+AM_CONDITIONAL(ENABLE_QEMU_TESTS, test x"$qemu_tests" = x"yes")
+if test x"$qemu_tests" = x"yes" && ! $srcdir/tests/qemu/check-depends.sh; then
+	AC_MSG_ERROR([missing programs for --enable-qemu-tests])
+fi
+
 AC_SUBST([CPPFLAGS])
 AC_SUBST([CFLAGS])
 AC_CONFIG_FILES([
@@ -82,6 +95,7 @@ AC_CONFIG_FILES([
 	include/linux/Makefile
 	libgtpnl.pc
 	src/Makefile
+	tests/Makefile
 	tools/Makefile
 ])
 AC_OUTPUT()
