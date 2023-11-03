@@ -40,13 +40,75 @@
 
 #include <libgtpnl/gtpnl.h>
 
+struct gtp_server_sock {
+	int			family;
+	int			fd1;
+	int			fd2;
+	socklen_t		len;
+	struct {
+		union {
+			struct sockaddr_in	in;
+			struct sockaddr_in6	in6;
+		} fd1;
+		union {
+			struct sockaddr_in	in;
+			struct sockaddr_in6	in6;
+		} fd2;
+	} sockaddr;
+};
+
+static void setup_sockaddr_in(struct sockaddr_in *sockaddr, uint16_t port)
+{
+	sockaddr->sin_family = AF_INET;
+	sockaddr->sin_port = htons(port);
+	sockaddr->sin_addr.s_addr = INADDR_ANY;
+}
+
+static void setup_sockaddr_in6(struct sockaddr_in6 *sockaddr, uint16_t port)
+{
+	sockaddr->sin6_family = AF_INET6;
+	sockaddr->sin6_port = htons(port);
+	sockaddr->sin6_addr = in6addr_any;
+}
+
+static int setup_socket(struct gtp_server_sock *gtp_sock, int family)
+{
+	int fd1 = socket(family, SOCK_DGRAM, 0);
+	int fd2 = socket(family, SOCK_DGRAM, 0);
+
+	if (fd1 < 0 || fd2 < 0)
+		return -1;
+
+	memset(gtp_sock, 0, sizeof(*gtp_sock));
+
+	gtp_sock->family = family;
+	gtp_sock->fd1 = fd1;
+	gtp_sock->fd2 = fd2;
+
+	switch (family) {
+	case AF_INET:
+		gtp_sock->len = sizeof(struct sockaddr_in);
+		setup_sockaddr_in(&gtp_sock->sockaddr.fd1.in, 3386);
+		setup_sockaddr_in(&gtp_sock->sockaddr.fd2.in, 2152);
+		break;
+	case AF_INET6:
+		gtp_sock->len = sizeof(struct sockaddr_in6);
+		setup_sockaddr_in6(&gtp_sock->sockaddr.fd1.in6, 3386);
+		setup_sockaddr_in6(&gtp_sock->sockaddr.fd2.in6, 2152);
+		break;
+	}
+
+	return 0;
+}
+
 int main(int argc, char *argv[])
 {
 	char buf[MNL_SOCKET_BUFFER_SIZE];
-	int ret, sgsn_mode = 0;
+	struct gtp_server_sock gtp_sock;
+	int ret, sgsn_mode = 0, family;
 
 	if (argc < 3) {
-		printf("Usage: %s add <device> [--sgsn]\n", argv[0]);
+		printf("Usage: %s add <device> <family> [--sgsn]\n", argv[0]);
 		printf("       %s del <device>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
@@ -57,43 +119,44 @@ int main(int argc, char *argv[])
 			perror("gtp_dev_destroy");
 
 		return 0;
+	} else if (!strcmp(argv[1], "add")) {
+		if (argc < 4) {
+			printf("Usage: %s add <device> <family> [--sgsn]\n", argv[0]);
+			exit(EXIT_FAILURE);
+		}
+
+		if (argc == 5 && !strcmp(argv[4], "--sgsn"))
+			sgsn_mode = 1;
 	}
 
-	if (argc > 3 && !strcmp(argv[3], "--sgsn"))
-		sgsn_mode = 1;
+	if (!strcmp(argv[3], "ip"))
+		family = AF_INET;
+	else if (!strcmp(argv[3], "ip6"))
+		family = AF_INET6;
+	else {
+		fprintf(stderr, "unsupport family `%s', expecting `ip' or `ip6'\n",
+			argv[3]);
+		exit(EXIT_FAILURE);
+	}
 
-	int fd1 = socket(AF_INET, SOCK_DGRAM, 0);
-	int fd2 = socket(AF_INET, SOCK_DGRAM, 0);
-	struct sockaddr_in sockaddr_fd1 = {
-		.sin_family	= AF_INET,
-		.sin_port	= htons(3386),
-		.sin_addr	= {
-			.s_addr 	= INADDR_ANY,
-		},
-	};
-	struct sockaddr_in sockaddr_fd2 = {
-		.sin_family	= AF_INET,
-		.sin_port	= htons(2152),
-		.sin_addr	= {
-			.s_addr 	= INADDR_ANY,
-		},
-	};
+	if (setup_socket(&gtp_sock, family) < 0) {
+		perror("socket");
+		exit(EXIT_FAILURE);
+	}
 
-	if (bind(fd1, (struct sockaddr *) &sockaddr_fd1,
-		 sizeof(sockaddr_fd1)) < 0) {
+	if (bind(gtp_sock.fd1, (struct sockaddr *) &gtp_sock.sockaddr.fd1, gtp_sock.len) < 0) {
 		perror("bind");
 		exit(EXIT_FAILURE);
 	}
-	if (bind(fd2, (struct sockaddr *) &sockaddr_fd2,
-		 sizeof(sockaddr_fd2)) < 0) {
+	if (bind(gtp_sock.fd2, (struct sockaddr *) &gtp_sock.sockaddr.fd2, gtp_sock.len) < 0) {
 		perror("bind");
 		exit(EXIT_FAILURE);
 	}
 
 	if (sgsn_mode)
-		ret = gtp_dev_create_sgsn(-1, argv[2], fd1, fd2);
+		ret = gtp_dev_create_sgsn(-1, argv[2], gtp_sock.fd1, gtp_sock.fd2);
 	else
-		ret = gtp_dev_create(-1, argv[2], fd1, fd2);
+		ret = gtp_dev_create(-1, argv[2], gtp_sock.fd1, gtp_sock.fd2);
 	if (ret < 0) {
 		perror("cannot create GTP device\n");
 		exit(EXIT_FAILURE);
@@ -103,11 +166,13 @@ int main(int argc, char *argv[])
 			"this process running for testing purposes.\n");
 
 	while (1) {
-		struct sockaddr_in addr;
-		socklen_t len = sizeof(addr);
+		union {
+			struct sockaddr_in addr;
+			struct sockaddr_in6 addr6;
+		} sock;
 
-		ret = recvfrom(fd1, buf, sizeof(buf), 0,
-			       (struct sockaddr *)&addr, &len);
+		ret = recvfrom(gtp_sock.fd1, buf, sizeof(buf), 0,
+			       (struct sockaddr *)&sock, &gtp_sock.len);
 		printf("received %d bytes via UDP socket\n", ret);
 	}
 
