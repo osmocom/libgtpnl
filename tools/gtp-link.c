@@ -75,6 +75,7 @@ static int setup_socket(struct gtp_server_sock *gtp_sock, int family)
 {
 	int fd1 = socket(family, SOCK_DGRAM, 0);
 	int fd2 = socket(family, SOCK_DGRAM, 0);
+	int one = 1;
 
 	if (fd1 < 0 || fd2 < 0)
 		return -1;
