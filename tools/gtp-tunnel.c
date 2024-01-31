@@ -133,7 +133,7 @@ del_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 	uint32_t gtp_ifidx;
 
 	if (argc != 6) {
-		printf("%s del <gtp device> <version> <tid> <family>\n",
+		printf("%s del <gtp device> <version> <tid|i_tei> <family>\n",
 			argv[0]);
 		return EXIT_FAILURE;
 	}
