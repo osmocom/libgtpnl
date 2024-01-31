@@ -44,42 +44,55 @@
 
 static void gtp_build_payload(struct nlmsghdr *nlh, struct gtp_tunnel *t)
 {
-	mnl_attr_put_u8(nlh, GTPA_FAMILY, t->ms_addr.family);
-	mnl_attr_put_u32(nlh, GTPA_VERSION, t->gtp_version);
-	if (t->ifns >= 0)
+	if (t->flags & GTP_TUN_FAMILY)
+		mnl_attr_put_u8(nlh, GTPA_FAMILY, t->ms_addr.family);
+	if (t->flags & GTP_TUN_VERSION)
+		mnl_attr_put_u32(nlh, GTPA_VERSION, t->gtp_version);
+	if (t->flags & GTP_TUN_IFNS)
 		mnl_attr_put_u32(nlh, GTPA_NET_NS_FD, t->ifns);
-	mnl_attr_put_u32(nlh, GTPA_LINK, t->ifidx);
+	if (t->flags & GTP_TUN_IFIDX)
+		mnl_attr_put_u32(nlh, GTPA_LINK, t->ifidx);
 
-	switch (t->ms_addr.family) {
-	case AF_INET:
-		mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, t->ms_addr.ip4.s_addr);
-		break;
-	case AF_INET6:
-		mnl_attr_put(nlh, GTPA_MS_ADDR6, sizeof(t->ms_addr.ip6), &t->ms_addr.ip6);
-		break;
-	default:
-		/* No addr is set when deleting a tunnel */
-		break;
+	if (t->flags & GTP_TUN_MS_ADDR) {
+		switch (t->ms_addr.family) {
+		case AF_INET:
+			mnl_attr_put_u32(nlh, GTPA_MS_ADDRESS, t->ms_addr.ip4.s_addr);
+			break;
+		case AF_INET6:
+			mnl_attr_put(nlh, GTPA_MS_ADDR6, sizeof(t->ms_addr.ip6), &t->ms_addr.ip6);
+			break;
+		default:
+			/* No addr is set when deleting a tunnel */
+			break;
+		}
 	}
 
-	switch (t->sgsn_addr.family) {
-	case AF_INET:
-		mnl_attr_put_u32(nlh, GTPA_PEER_ADDRESS, t->sgsn_addr.ip4.s_addr);
-		break;
-	case AF_INET6:
-		mnl_attr_put(nlh, GTPA_PEER_ADDR6, sizeof(t->sgsn_addr.ip6), &t->sgsn_addr.ip6);
-		break;
-	default:
-		/* No addr is set when deleting a tunnel */
-		break;
+	if (t->flags & GTP_TUN_SGSN_ADDR) {
+		switch (t->sgsn_addr.family) {
+		case AF_INET:
+			mnl_attr_put_u32(nlh, GTPA_PEER_ADDRESS, t->sgsn_addr.ip4.s_addr);
+			break;
+		case AF_INET6:
+			mnl_attr_put(nlh, GTPA_PEER_ADDR6, sizeof(t->sgsn_addr.ip6), &t->sgsn_addr.ip6);
+			break;
+		default:
+			/* No addr is set when deleting a tunnel */
+			break;
+		}
 	}
 
-	if (t->gtp_version == GTP_V0) {
-		mnl_attr_put_u64(nlh, GTPA_TID, t->u.v0.tid);
-		mnl_attr_put_u16(nlh, GTPA_FLOW, t->u.v0.flowid);
-	} else if (t->gtp_version == GTP_V1) {
-		mnl_attr_put_u32(nlh, GTPA_I_TEI, t->u.v1.i_tei);
-		mnl_attr_put_u32(nlh, GTPA_O_TEI, t->u.v1.o_tei);
+	if (t->flags & GTP_TUN_VERSION) {
+		if (t->gtp_version == GTP_V0) {
+			if (t->flags & GTP_TUN_V0_TID)
+				mnl_attr_put_u64(nlh, GTPA_TID, t->u.v0.tid);
+			if (t->flags & GTP_TUN_V0_FLOWID)
+				mnl_attr_put_u16(nlh, GTPA_FLOW, t->u.v0.flowid);
+		} else if (t->gtp_version == GTP_V1) {
+			if (t->flags & GTP_TUN_V1_I_TEI)
+				mnl_attr_put_u32(nlh, GTPA_I_TEI, t->u.v1.i_tei);
+			if (t->flags & GTP_TUN_V1_O_TEI)
+				mnl_attr_put_u32(nlh, GTPA_O_TEI, t->u.v1.o_tei);
+		}
 	}
 }
 

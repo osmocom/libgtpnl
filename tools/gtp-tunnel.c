@@ -109,9 +109,10 @@ add_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 
 	optidx++;
 
-	if (gtp_version == GTP_V0)
+	if (gtp_version == GTP_V0) {
 		gtp_tunnel_set_tid(t, atoi(argv[optidx++]));
-	else if (gtp_version == GTP_V1) {
+		gtp_tunnel_set_flowid(t, 0);
+	} else if (gtp_version == GTP_V1) {
 		gtp_tunnel_set_i_tei(t, atoi(argv[optidx++]));
 		gtp_tunnel_set_o_tei(t, atoi(argv[optidx++]));
 	}
