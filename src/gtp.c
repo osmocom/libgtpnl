@@ -58,6 +58,12 @@ void gtp_tunnel_set_ifidx(struct gtp_tunnel *t, uint32_t ifidx)
 }
 EXPORT_SYMBOL(gtp_tunnel_set_ifidx);
 
+void gtp_tunnel_set_family(struct gtp_tunnel *t, uint16_t family)
+{
+	t->ms_addr.family = family;
+}
+EXPORT_SYMBOL(gtp_tunnel_set_family);
+
 void gtp_tunnel_set_ms_ip4(struct gtp_tunnel *t, struct in_addr *ms_addr)
 {
 	t->ms_addr.family = AF_INET;

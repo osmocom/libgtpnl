@@ -131,8 +131,8 @@ del_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 	struct gtp_tunnel *t;
 	uint32_t gtp_ifidx;
 
-	if (argc != 5) {
-		printf("%s del <gtp device> <version> <tid>\n",
+	if (argc != 6) {
+		printf("%s del <gtp device> <version> <tid> <family>\n",
 			argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -156,6 +156,16 @@ del_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 	} else {
 		fprintf(stderr, "wrong GTP version %s, use v0 or v1\n",
 			argv[3]);
+		gtp_tunnel_free(t);
+		return EXIT_FAILURE;
+	}
+
+	if (strcmp(argv[5], "ip") == 0) {
+		gtp_tunnel_set_family(t, AF_INET);
+	} else if (strcmp(argv[5], "ip6") == 0) {
+		gtp_tunnel_set_family(t, AF_INET6);
+	} else {
+		fprintf(stderr, "wrong family %s, use ip or ip6\n", argv[5]);
 		gtp_tunnel_free(t);
 		return EXIT_FAILURE;
 	}
