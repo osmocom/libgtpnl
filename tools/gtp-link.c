@@ -75,6 +75,7 @@ static int setup_socket(struct gtp_server_sock *gtp_sock, int family)
 {
 	int fd1 = socket(family, SOCK_DGRAM, 0);
 	int fd2 = socket(family, SOCK_DGRAM, 0);
+	int one = 1;
 
 	if (fd1 < 0 || fd2 < 0)
 		return -1;
@@ -95,6 +96,10 @@ static int setup_socket(struct gtp_server_sock *gtp_sock, int family)
 		gtp_sock->len = sizeof(struct sockaddr_in6);
 		setup_sockaddr_in6(&gtp_sock->sockaddr.fd1.in6, 3386);
 		setup_sockaddr_in6(&gtp_sock->sockaddr.fd2.in6, 2152);
+		if (setsockopt(fd1, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one)) < 0)
+			perror("setsockopt IPV6_V6ONLY: ");
+		if (setsockopt(fd2, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one)) < 0)
+			perror("setsockopt IPV6_V6ONLY: ");
 		break;
 	}
 
