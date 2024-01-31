@@ -141,6 +141,7 @@ int gtp_del_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 EXPORT_SYMBOL(gtp_del_tunnel);
 
 struct gtp_pdp {
+	uint32_t	ifidx;
 	uint32_t	version;
 	union {
 		struct {
@@ -181,6 +182,7 @@ static int genl_gtp_validate_cb(const struct nlattr *attr, void *data)
 	case GTPA_PEER_ADDRESS:
 	case GTPA_MS_ADDRESS:
 	case GTPA_VERSION:
+	case GTPA_LINK:
 		if (mnl_attr_validate(attr, MNL_TYPE_U32) < 0) {
 			perror("mnl_attr_validate");
 			return MNL_CB_ERROR;
@@ -210,6 +212,8 @@ static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 
 	mnl_attr_parse(nlh, sizeof(*genl), genl_gtp_validate_cb, tb);
 
+	if (tb[GTPA_LINK])
+		pdp.ifidx = mnl_attr_get_u32(tb[GTPA_LINK]);
 	if (tb[GTPA_TID])
 		pdp.u.v0.tid = mnl_attr_get_u64(tb[GTPA_TID]);
 	if (tb[GTPA_I_TEI])
@@ -244,6 +248,8 @@ static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 		fprintf(stderr, "ms_addr family does not match GTPA_FAMILY\n");
 		return MNL_CB_ERROR;
 	}
+
+	printf("%s ", if_indextoname(pdp.ifidx, buf));
 
 	if (tb[GTPA_VERSION])
 		pdp.version = mnl_attr_get_u32(tb[GTPA_VERSION]);
