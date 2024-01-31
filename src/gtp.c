@@ -49,18 +49,21 @@ EXPORT_SYMBOL(gtp_tunnel_free);
 void gtp_tunnel_set_ifns(struct gtp_tunnel *t, int ifns)
 {
 	t->ifns = ifns;
+	t->flags |= GTP_TUN_IFNS;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_ifns);
 
 void gtp_tunnel_set_ifidx(struct gtp_tunnel *t, uint32_t ifidx)
 {
 	t->ifidx = ifidx;
+	t->flags |= GTP_TUN_IFIDX;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_ifidx);
 
 void gtp_tunnel_set_family(struct gtp_tunnel *t, uint16_t family)
 {
 	t->ms_addr.family = family;
+	t->flags |= GTP_TUN_FAMILY;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_family);
 
@@ -68,6 +71,7 @@ void gtp_tunnel_set_ms_ip4(struct gtp_tunnel *t, struct in_addr *ms_addr)
 {
 	t->ms_addr.family = AF_INET;
 	t->ms_addr.ip4 = *ms_addr;
+	t->flags |= GTP_TUN_FAMILY | GTP_TUN_MS_ADDR;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_ms_ip4);
 
@@ -75,6 +79,7 @@ void gtp_tunnel_set_sgsn_ip4(struct gtp_tunnel *t, struct in_addr *sgsn_addr)
 {
 	t->sgsn_addr.family = AF_INET;
 	t->sgsn_addr.ip4 = *sgsn_addr;
+	t->flags |= GTP_TUN_SGSN_ADDR;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_sgsn_ip4);
 
@@ -82,6 +87,7 @@ void gtp_tunnel_set_ms_ip6(struct gtp_tunnel *t, const struct in6_addr *ms_addr)
 {
 	t->ms_addr.family = AF_INET6;
 	t->ms_addr.ip6 = *ms_addr;
+	t->flags |= GTP_TUN_FAMILY | GTP_TUN_MS_ADDR;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_ms_ip6);
 
@@ -89,36 +95,42 @@ void gtp_tunnel_set_sgsn_ip6(struct gtp_tunnel *t, const struct in6_addr *sgsn_a
 {
 	t->sgsn_addr.family = AF_INET6;
 	t->sgsn_addr.ip6 = *sgsn_addr;
+	t->flags |= GTP_TUN_SGSN_ADDR;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_sgsn_ip6);
 
 void gtp_tunnel_set_version(struct gtp_tunnel *t, uint32_t version)
 {
 	t->gtp_version = version;
+	t->flags |= GTP_TUN_VERSION;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_version);
 
 void gtp_tunnel_set_tid(struct gtp_tunnel *t, uint64_t tid)
 {
 	t->u.v0.tid = tid;
+	t->flags |= GTP_TUN_V0_TID;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_tid);
 
 void gtp_tunnel_set_flowid(struct gtp_tunnel *t, uint16_t flowid)
 {
 	t->u.v0.flowid = flowid;
+	t->flags |= GTP_TUN_V0_FLOWID;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_flowid);
 
 void gtp_tunnel_set_i_tei(struct gtp_tunnel *t, uint32_t i_tei)
 {
 	t->u.v1.i_tei = i_tei;
+	t->flags |= GTP_TUN_V1_I_TEI;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_i_tei);
 
 void gtp_tunnel_set_o_tei(struct gtp_tunnel *t, uint32_t o_tei)
 {
 	t->u.v1.o_tei = o_tei;
+	t->flags |= GTP_TUN_V1_O_TEI;
 }
 EXPORT_SYMBOL(gtp_tunnel_set_o_tei);
 
