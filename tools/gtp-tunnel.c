@@ -77,6 +77,7 @@ add_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 	uint32_t gtp_ifidx;
 	uint32_t gtp_version;
 	int optidx;
+	int ret;
 
 	if (argc < 7 || argc > 8) {
 		add_usage(argv[0]);
@@ -118,10 +119,10 @@ add_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 	set_addr(argv[optidx++], true, t);
 	set_addr(argv[optidx++], false, t);
 
-	gtp_add_tunnel(genl_id, nl, t);
+	ret = gtp_add_tunnel(genl_id, nl, t);
 
 	gtp_tunnel_free(t);
-	return 0;
+	return ret;
 }
 
 static int
