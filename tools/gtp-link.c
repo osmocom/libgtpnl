@@ -80,16 +80,15 @@ static void setup_sockaddr_in6(struct sockaddr_in6 *sockaddr, struct in6_addr *i
 
 static int setup_socket(struct gtp_server_sock *gtp_sock, int family)
 {
-	int fd1 = socket(family, SOCK_DGRAM, 0);
-	int fd2 = socket(family, SOCK_DGRAM, 0);
 	int one = 1;
 
-	if (fd1 < 0 || fd2 < 0)
+	gtp_sock->fd1 = socket(family, SOCK_DGRAM, 0);
+	gtp_sock->fd2 = socket(family, SOCK_DGRAM, 0);
+
+	if (gtp_sock->fd1 < 0 || gtp_sock->fd2 < 0)
 		return -1;
 
 	gtp_sock->family = family;
-	gtp_sock->fd1 = fd1;
-	gtp_sock->fd2 = fd2;
 
 	switch (family) {
 	case AF_INET:
@@ -105,14 +104,27 @@ static int setup_socket(struct gtp_server_sock *gtp_sock, int family)
 				   &gtp_sock->addr.v6, 3386);
 		setup_sockaddr_in6(&gtp_sock->sockaddr.fd2.in6,
 				   &gtp_sock->addr.v6, 2152);
-		if (setsockopt(fd1, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one)) < 0)
+		if (setsockopt(gtp_sock->fd1, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one)) < 0)
 			perror("setsockopt IPV6_V6ONLY: ");
-		if (setsockopt(fd2, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one)) < 0)
+		if (setsockopt(gtp_sock->fd2, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one)) < 0)
 			perror("setsockopt IPV6_V6ONLY: ");
 		break;
 	}
 
 	return 0;
+}
+
+static void close_socket(struct gtp_server_sock *gtp_sock)
+{
+	if (gtp_sock->fd1 != -1) {
+		close(gtp_sock->fd1);
+		gtp_sock->fd1 = -1;
+	}
+
+	if (gtp_sock->fd2 != -1) {
+		close(gtp_sock->fd2);
+		gtp_sock->fd2 = -1;
+	}
 }
 
 int main(int argc, char *argv[])
@@ -186,15 +198,18 @@ int main(int argc, char *argv[])
 
 	if (setup_socket(&gtp_sock, family) < 0) {
 		perror("socket");
+		close_socket(&gtp_sock);
 		exit(EXIT_FAILURE);
 	}
 
 	if (bind(gtp_sock.fd1, (struct sockaddr *) &gtp_sock.sockaddr.fd1, gtp_sock.len) < 0) {
 		perror("bind");
+		close_socket(&gtp_sock);
 		exit(EXIT_FAILURE);
 	}
 	if (bind(gtp_sock.fd2, (struct sockaddr *) &gtp_sock.sockaddr.fd2, gtp_sock.len) < 0) {
 		perror("bind");
+		close_socket(&gtp_sock);
 		exit(EXIT_FAILURE);
 	}
 
@@ -204,6 +219,7 @@ int main(int argc, char *argv[])
 		ret = gtp_dev_create(-1, argv[2], gtp_sock.fd1, gtp_sock.fd2);
 	if (ret < 0) {
 		perror("cannot create GTP device\n");
+		close_socket(&gtp_sock);
 		exit(EXIT_FAILURE);
 	}
 
