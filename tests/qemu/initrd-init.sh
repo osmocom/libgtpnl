@@ -29,6 +29,7 @@ run_test 01_ms_ip4_sgsn_ip4.sh
 run_test 02_ms_ip4_sgsn_ip6.sh
 run_test 03_ms_ip6_sgsn_ip4.sh
 run_test 04_ms_ip6_sgsn_ip6.sh
+run_test 05_ms_ip46_sgsn_ip4.sh
 
 # Success (run-qemu.sh checks for this line)
 echo "QEMU_TEST_SUCCESSFUL"
