@@ -131,6 +131,7 @@ del_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 {
 	struct gtp_tunnel *t;
 	uint32_t gtp_ifidx;
+	int ret;
 
 	if (argc != 6) {
 		printf("%s del <gtp device> <version> <tid|i_tei> <family>\n",
@@ -171,10 +172,10 @@ del_tunnel(int argc, char *argv[], int genl_id, struct mnl_socket *nl)
 		return EXIT_FAILURE;
 	}
 
-	gtp_del_tunnel(genl_id, nl, t);
+	ret = gtp_del_tunnel(genl_id, nl, t);
 
 	gtp_tunnel_free(t);
-	return 0;
+	return ret;
 }
 
 struct gtp_pdp {
