@@ -1,6 +1,7 @@
 #!/bin/sh -ex
 . /tests/00_test_functions.sh
 
+MS_PROTO="ip"
 MS="172.99.0.1"
 MS_PREFLEN="32"
 SGSN_GGSN_PROTO="ip"

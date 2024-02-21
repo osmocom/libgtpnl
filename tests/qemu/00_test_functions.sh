@@ -8,6 +8,7 @@ alias ggsn_side="ip netns exec ggsn_side"
 
 # MS - SGSN -gtp- GGSN - WEBSERVER
 tunnel_start() {
+	test -n "$MS_PROTO"
 	test -n "$MS"
 	test -n "$MS_PREFLEN"
 	test -n "$SGSN_GGSN_PROTO"
@@ -67,9 +68,9 @@ tunnel_stop() {
 
 	ip link del veth_sgsn
 	ip route del "$WEBSERVER"/"$MS_PREFLEN" dev gtp_sgsn
-	gtp-tunnel delete gtp_sgsn v1 200 "$SGSN_GGSN_PROTO"
+	gtp-tunnel delete gtp_sgsn v1 200 "$MS_PROTO"
 	gtp-link del gtp_sgsn
-	ggsn_side gtp-tunnel delete gtp_ggsn v1 100 "$SGSN_GGSN_PROTO"
+	ggsn_side gtp-tunnel delete gtp_ggsn v1 100 "$MS_PROTO"
 	ggsn_side gtp-link del gtp_ggsn
 	ip netns del ggsn_side
 }

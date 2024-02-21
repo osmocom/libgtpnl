@@ -1,6 +1,7 @@
 #!/bin/sh -ex
 . /tests/00_test_functions.sh
 
+MS_PROTO="ip6"
 MS="fc00::"
 MS_PREFLEN="64"
 SGSN_GGSN_PROTO="ip6"
