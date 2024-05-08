@@ -89,7 +89,6 @@ AC_SUBST([CPPFLAGS])
 AC_SUBST([CFLAGS])
 AC_CONFIG_FILES([
 	Makefile
-	contrib/libgtpnl.spec
 	include/Makefile
 	include/libgtpnl/Makefile
 	include/linux/Makefile
