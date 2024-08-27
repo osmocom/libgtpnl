@@ -35,6 +35,12 @@ AM_PROG_CC_C_O
 AC_EXEEXT
 AC_DISABLE_STATIC
 LT_INIT
+
+dnl patching ${archive_cmds} to affect generation of file "libtool" to fix linking with clang
+AS_CASE(["$LD"],[*clang*],
+  [AS_CASE(["${host_os}"],
+     [*linux*],[archive_cmds='$CC -shared $pic_flag $libobjs $deplibs $compiler_flags $wl-soname $wl$soname -o $lib'])])
+
 CHECK_GCC_FVISIBILITY
 case "$host" in
 *-*-linux* | *-*-uclinux*) ;;

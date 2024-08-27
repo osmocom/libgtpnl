@@ -96,6 +96,7 @@ static void gtp_build_payload(struct nlmsghdr *nlh, struct gtp_tunnel *t)
 	}
 }
 
+EXPORT_SYMBOL(gtp_add_tunnel);
 int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 {
 	struct nlmsghdr *nlh;
@@ -119,8 +120,8 @@ int gtp_add_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 
 	return 0;
 }
-EXPORT_SYMBOL(gtp_add_tunnel);
 
+EXPORT_SYMBOL(gtp_del_tunnel);
 int gtp_del_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 {
 	char buf[MNL_SOCKET_BUFFER_SIZE];
@@ -138,7 +139,6 @@ int gtp_del_tunnel(int genl_id, struct mnl_socket *nl, struct gtp_tunnel *t)
 
 	return 0;
 }
-EXPORT_SYMBOL(gtp_del_tunnel);
 
 struct gtp_pdp {
 	uint32_t	ifidx;
@@ -270,6 +270,7 @@ static int genl_gtp_attr_cb(const struct nlmsghdr *nlh, void *data)
 	return MNL_CB_OK;
 }
 
+EXPORT_SYMBOL(gtp_list_tunnel);
 int gtp_list_tunnel(int genl_id, struct mnl_socket *nl)
 {
 	char buf[MNL_SOCKET_BUFFER_SIZE];
@@ -286,4 +287,3 @@ int gtp_list_tunnel(int genl_id, struct mnl_socket *nl)
 
 	return 0;
 }
-EXPORT_SYMBOL(gtp_list_tunnel);

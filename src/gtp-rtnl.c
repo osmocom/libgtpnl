@@ -138,18 +138,19 @@ static int _gtp_dev_create(int dest_ns, const char *gtp_ifname, int fd0,
 	return gtp_dev_talk(nlh, seq);
 }
 
+EXPORT_SYMBOL(gtp_dev_create);
 int gtp_dev_create(int dest_ns, const char *gtp_ifname, int fd0, int fd1)
 {
 	return _gtp_dev_create(dest_ns, gtp_ifname, fd0, fd1, GTP_ROLE_GGSN);
 }
-EXPORT_SYMBOL(gtp_dev_create);
 
+EXPORT_SYMBOL(gtp_dev_create_sgsn);
 int gtp_dev_create_sgsn(int dest_ns, const char *gtp_ifname, int fd0, int fd1)
 {
 	return _gtp_dev_create(dest_ns, gtp_ifname, fd0, fd1, GTP_ROLE_SGSN);
 }
-EXPORT_SYMBOL(gtp_dev_create_sgsn);
 
+EXPORT_SYMBOL(gtp_dev_destroy);
 int gtp_dev_destroy(const char *gtp_ifname)
 {
 	char buf[MNL_SOCKET_BUFFER_SIZE];
@@ -166,8 +167,8 @@ int gtp_dev_destroy(const char *gtp_ifname)
 
 	return gtp_dev_talk(nlh, seq);
 }
-EXPORT_SYMBOL(gtp_dev_destroy);
 
+EXPORT_SYMBOL(gtp_dev_config);
 int gtp_dev_config(const char *ifname, struct in_addr *dst, uint32_t prefix)
 {
 	struct mnl_socket *nl;
@@ -211,4 +212,3 @@ int gtp_dev_config(const char *ifname, struct in_addr *dst, uint32_t prefix)
 
 	return ret;
 }
-EXPORT_SYMBOL(gtp_dev_config);

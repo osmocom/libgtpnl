@@ -32,6 +32,7 @@
 
 #include "internal.h"
 
+EXPORT_SYMBOL(genl_nlmsg_build_hdr);
 struct nlmsghdr *
 genl_nlmsg_build_hdr(char *buf, uint16_t type, uint16_t flags, uint32_t seq,
 		     uint8_t cmd)
@@ -50,7 +51,6 @@ genl_nlmsg_build_hdr(char *buf, uint16_t type, uint16_t flags, uint32_t seq,
 
 	return nlh;
 }
-EXPORT_SYMBOL(genl_nlmsg_build_hdr);
 
 static int genl_ctrl_validate_cb(const struct nlattr *attr, void *data)
 {
@@ -87,6 +87,7 @@ static int genl_ctrl_cb(const struct nlmsghdr *nlh, void *data)
 	return MNL_CB_OK;
 }
 
+EXPORT_SYMBOL(genl_socket_open);
 struct mnl_socket *genl_socket_open(void)
 {
 	struct mnl_socket *nl;
@@ -104,14 +105,14 @@ struct mnl_socket *genl_socket_open(void)
 
 	return nl;
 }
-EXPORT_SYMBOL(genl_socket_open);
 
+EXPORT_SYMBOL(genl_socket_close);
 void genl_socket_close(struct mnl_socket *nl)
 {
 	mnl_socket_close(nl);
 }
-EXPORT_SYMBOL(genl_socket_close);
 
+EXPORT_SYMBOL(genl_socket_talk);
 int genl_socket_talk(struct mnl_socket *nl, struct nlmsghdr *nlh, uint32_t seq,
 		     int (*cb)(const struct nlmsghdr *nlh, void *data),
 		     void *data)
@@ -135,7 +136,6 @@ int genl_socket_talk(struct mnl_socket *nl, struct nlmsghdr *nlh, uint32_t seq,
 
 	return ret;
 }
-EXPORT_SYMBOL(genl_socket_talk);
 
 static struct nlmsghdr *
 genl_nlmsg_build_lookup(char *buf, const char *subsys_name)
@@ -158,6 +158,7 @@ genl_nlmsg_build_lookup(char *buf, const char *subsys_name)
 	return nlh;
 }
 
+EXPORT_SYMBOL(genl_lookup_family);
 int genl_lookup_family(struct mnl_socket *nl, const char *family)
 {
 	int32_t genl_id;
@@ -171,4 +172,3 @@ int genl_lookup_family(struct mnl_socket *nl, const char *family)
 
 	return genl_id;
 }
-EXPORT_SYMBOL(genl_lookup_family);
