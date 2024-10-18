@@ -127,8 +127,10 @@ static int _gtp_dev_create(int dest_ns, const char *gtp_ifname, int fd0,
 	nest = mnl_attr_nest_start(nlh, IFLA_LINKINFO);
 	mnl_attr_put_str(nlh, IFLA_INFO_KIND, "gtp");
 	nest2 = mnl_attr_nest_start(nlh, IFLA_INFO_DATA);
-	mnl_attr_put_u32(nlh, IFLA_GTP_FD0, fd0);
-	mnl_attr_put_u32(nlh, IFLA_GTP_FD1, fd1);
+	if (fd0 >= 0)
+		mnl_attr_put_u32(nlh, IFLA_GTP_FD0, fd0);
+	if (fd1 >= 0)
+		mnl_attr_put_u32(nlh, IFLA_GTP_FD1, fd1);
 	mnl_attr_put_u32(nlh, IFLA_GTP_PDP_HASHSIZE, 131072);
 	if (role != GTP_ROLE_GGSN)
 		mnl_attr_put_u32(nlh, IFLA_GTP_ROLE, role);
