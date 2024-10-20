@@ -9,8 +9,8 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign tar-pax no-dist-gzip dist-bzip2 1.6 subdir-objects])
 
-CPPFLAGS="$CPPFLAGS -D_FILE_OFFSET_BITS=64 -D_REENTRANT"
-CFLAGS="$CFLAGS -Wall -Waggregate-return -Wmissing-declarations \
+regular_CPPFLAGS="-D_FILE_OFFSET_BITS=64 -D_REENTRANT"
+regular_CFLAGS="-Wall -Waggregate-return -Wmissing-declarations \
 	-Wmissing-prototypes -Wshadow -Wstrict-prototypes \
 	-Wformat=2 -pipe"
 
@@ -55,8 +55,8 @@ AC_ARG_ENABLE(sanitize,
 	[sanitize=$enableval], [sanitize="no"])
 if test x"$sanitize" = x"yes"
 then
-	CFLAGS="$CFLAGS -fsanitize=address -fsanitize=undefined"
-	CPPFLAGS="$CPPFLAGS -fsanitize=address -fsanitize=undefined"
+	regular_CFLAGS="-fsanitize=address -fsanitize=undefined"
+	regular_CPPFLAGS="-fsanitize=address -fsanitize=undefined"
 fi
 
 AC_ARG_ENABLE(werror,
@@ -74,8 +74,8 @@ then
 	WERROR_FLAGS+=" -Werror=implicit-int -Werror=int-conversion -Werror=old-style-definition"
 	WERROR_FLAGS+=" -Wno-error=deprecated -Wno-error=deprecated-declarations"
 	WERROR_FLAGS+=" -Wno-error=cpp" # "#warning"
-	CFLAGS="$CFLAGS $WERROR_FLAGS"
-	CPPFLAGS="$CPPFLAGS $WERROR_FLAGS"
+	regular_CFLAGS="$WERROR_FLAGS"
+	regular_CPPFLAGS="$WERROR_FLAGS"
 fi
 
 AC_ARG_ENABLE(qemu_tests,
@@ -91,8 +91,8 @@ if test x"$qemu_tests" = x"yes" && ! $srcdir/tests/qemu/check-depends.sh; then
 	AC_MSG_ERROR([missing programs for --enable-qemu-tests])
 fi
 
-AC_SUBST([CPPFLAGS])
-AC_SUBST([CFLAGS])
+AC_SUBST([regular_CPPFLAGS])
+AC_SUBST([regular_CFLAGS])
 AC_CONFIG_FILES([
 	Makefile
 	include/Makefile
