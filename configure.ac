@@ -71,9 +71,9 @@ AC_ARG_ENABLE(werror,
 if test x"$werror" = x"yes"
 then
 	WERROR_FLAGS="-Werror"
-	WERROR_FLAGS+=" -Werror=implicit-int -Werror=int-conversion -Werror=old-style-definition"
-	WERROR_FLAGS+=" -Wno-error=deprecated -Wno-error=deprecated-declarations"
-	WERROR_FLAGS+=" -Wno-error=cpp" # "#warning"
+	WERROR_FLAGS="$WERROR_FLAGS -Werror=implicit-int -Werror=int-conversion -Werror=old-style-definition"
+	WERROR_FLAGS="$WERROR_FLAGS -Wno-error=deprecated -Wno-error=deprecated-declarations"
+	WERROR_FLAGS="$WERROR_FLAGS -Wno-error=cpp" # "#warning"
 	regular_CFLAGS="$WERROR_FLAGS"
 	regular_CPPFLAGS="$WERROR_FLAGS"
 fi
