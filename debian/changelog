@@ -1,3 +1,17 @@
+libgtpnl (1.3.1) unstable; urgency=medium
+
+  [ Eric Wild ]
+  * fix clang build
+
+  [ Jan Engelhardt ]
+  * Revert `configure: regular_C(PP)FLAGS -> C(PP)FLAGS`
+  * build: fix bashims in configure.ac
+
+  [ Pau Espin Pedrol ]
+  * dev_create: Avoid passing IFLA_GTP_FD* attribute with value -1
+
+ -- Oliver Smith <osmith@sysmocom.de>  Mon, 21 Oct 2024 13:31:29 +0200
+
 libgtpnl (1.3.0) unstable; urgency=medium
 
   [ Oliver Smith ]
