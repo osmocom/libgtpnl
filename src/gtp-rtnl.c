@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
 
 #include <libmnl/libmnl.h>
 #include <net/if.h>
@@ -143,7 +144,15 @@ static int _gtp_dev_create(int dest_ns, const char *gtp_ifname, int fd0,
 EXPORT_SYMBOL(gtp_dev_create);
 int gtp_dev_create(int dest_ns, const char *gtp_ifname, int fd0, int fd1)
 {
-	return _gtp_dev_create(dest_ns, gtp_ifname, fd0, fd1, GTP_ROLE_GGSN);
+	int rc;
+
+	errno = 0;
+	rc = _gtp_dev_create(dest_ns, gtp_ifname, fd0, fd1, GTP_ROLE_GGSN);
+
+	if (rc < 0 && errno)
+		return -errno;
+
+	return rc;
 }
 
 EXPORT_SYMBOL(gtp_dev_create_sgsn);
